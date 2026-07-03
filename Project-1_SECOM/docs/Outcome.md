@@ -1,27 +1,31 @@
 # Document 3: Learning Outcomes and Concepts to Spend More Time Understanding
 
-# Project 1 Learning Guide: Semiconductor Yield Prediction with SECOM
+# Project 1 Learning Guide: Semiconductor Yield Prediction and Feature Selection with SECOM
 
 ## 1. Main Learning Outcomes
 
 By the end of this project, you should be able to explain and apply the following:
 
 1. How semiconductor process data is different from normal business data.
-2. Why yield prediction is important in manufacturing.
-3. Why missing values are common in process datasets.
-4. Why class imbalance matters in pass/fail prediction.
-5. Why accuracy is not enough for manufacturing classification.
-6. How to evaluate a failure-prediction model.
-7. How to interpret model results carefully.
-8. How to avoid claiming causation from correlation.
-9. How to use dimensionality reduction to understand process behavior.
-10. How to communicate model results to engineering teams.
-11. How to prepare a project for a public portfolio.
-12. How this project can later connect to TDA.
+2. Why process monitoring creates many sensor and measurement signals.
+3. Why not all process signals are equally useful.
+4. Why feature selection matters in semiconductor yield analytics.
+5. Why yield prediction is important in manufacturing.
+6. Why missing values are common in process datasets.
+7. Why class imbalance matters in pass/fail prediction.
+8. Why accuracy is not enough for manufacturing classification.
+9. How to calculate and interpret balanced error rate.
+10. How to evaluate a failure-prediction model.
+11. How to compare all features versus selected features.
+12. How to interpret model results carefully.
+13. How to avoid claiming causation from correlation.
+14. How to use dimensionality reduction to understand process behavior.
+15. How to communicate model results to engineering teams.
+16. How this project can later connect to TDA.
 
 ---
 
-# 2. What to Learn in Each Project Stage
+## 2. What to Learn in Each Project Stage
 
 ## Stage 1: Semiconductor Manufacturing Context
 
@@ -34,7 +38,8 @@ You should understand basic manufacturing vocabulary:
 * process variation,
 * process drift,
 * process window,
-* excursion,
+* yield excursion,
+* process monitoring,
 * out-of-control condition,
 * scrap,
 * rework,
@@ -50,8 +55,9 @@ Without manufacturing context, the project becomes just another ML classificatio
 Spend extra time on:
 
 * yield,
+* process monitoring,
+* yield excursions,
 * process drift,
-* excursions,
 * false negatives,
 * false positives.
 
@@ -65,35 +71,36 @@ A model is useful only if it supports a real manufacturing decision.
 
 ### What You Should Learn
 
-You should learn how to inspect a high-dimensional dataset.
+You should learn how to inspect a high-dimensional semiconductor dataset.
 
-Important ideas:
+Important facts for this dataset:
 
-* number of rows,
-* number of columns,
-* target variable,
-* numerical features,
-* missing values,
-* duplicate rows,
-* constant features,
-* noisy measurements.
+* 1,567 examples,
+* 591 features,
+* 104 failures,
+* -1 means pass,
+* 1 means fail,
+* each row is one production entity,
+* each feature is an anonymized process or sensor signal.
 
 ### Why It Matters
 
-Manufacturing data is often messy. You should not jump directly into modeling.
+The dataset is wide, noisy, imbalanced, and anonymized. You should not jump directly into modeling.
 
 ### Spend More Time Understanding
 
 Spend extra time on:
 
-* missing-value patterns,
 * high-dimensional data,
+* anonymized features,
+* noisy sensor data,
 * low-variance features,
-* noisy sensor data.
+* class distribution,
+* missing-value patterns.
 
 ### Key Understanding
 
-Before modeling, you need to understand the condition of the data.
+Before modeling, you need to understand the condition and structure of the data.
 
 ---
 
@@ -139,15 +146,13 @@ Missingness itself can sometimes contain information.
 
 You should understand why pass/fail datasets are often imbalanced.
 
-Most production units should pass. Failures are less common but more important.
+In this dataset, only about 6.6% of examples are failures.
 
 ### Why It Matters
 
 A model can achieve high accuracy by predicting the majority class all the time.
 
-For example:
-
-> If 94% of units pass, a model that always predicts “pass” gets 94% accuracy but detects zero failures.
+For this dataset, a model that predicts every example as “pass” would achieve about 93.4% accuracy but detect zero failures.
 
 ### Spend More Time Understanding
 
@@ -158,6 +163,7 @@ Spend extra time on:
 * precision,
 * F1-score,
 * balanced accuracy,
+* balanced error rate,
 * confusion matrix,
 * false-negative rate.
 
@@ -167,7 +173,46 @@ Accuracy can be misleading when failures are rare.
 
 ---
 
-## Stage 5: Exploratory Data Analysis
+## Stage 5: Feature Selection
+
+### What You Should Learn
+
+Feature selection is one of the most important concepts in this project.
+
+You should understand how to rank features based on their relationship with the target variable.
+
+Feature selection can help answer:
+
+* Which process signals are most useful?
+* Can we reduce hundreds of signals to a smaller useful set?
+* Do selected features improve model performance?
+* Do selected features make the model easier to interpret?
+* Which features should process engineers investigate?
+
+### Why It Matters
+
+The original purpose of the dataset is related to identifying useful signals from many noisy or irrelevant signals.
+
+### Spend More Time Understanding
+
+Spend extra time on:
+
+* signal-to-noise ranking,
+* t-test feature ranking,
+* F-test feature ranking,
+* Pearson correlation ranking,
+* model-based feature importance,
+* permutation importance,
+* top 40 feature selection,
+* feature selection versus feature extraction.
+
+### Key Understanding
+
+This project is not just about prediction. It is about finding useful process signals.
+
+---
+
+## Stage 6: Exploratory Data Analysis
 
 ### What You Should Learn
 
@@ -202,13 +247,13 @@ EDA helps you find possible process signals before modeling.
 
 ---
 
-## Stage 6: Dimensionality Reduction
+## Stage 7: Dimensionality Reduction
 
 ### What You Should Learn
 
 You should learn why high-dimensional data is hard to understand visually.
 
-SECOM has many features, so you need tools like PCA to reduce the data into fewer dimensions.
+SECOM has 591 features, so you need tools like PCA to reduce the data into fewer dimensions for visualization.
 
 ### Why It Matters
 
@@ -237,7 +282,7 @@ PCA is useful for visualization, but it does not capture every kind of structure
 
 ---
 
-## Stage 7: Baseline Modeling
+## Stage 8: Baseline Modeling
 
 ### What You Should Learn
 
@@ -258,7 +303,8 @@ Spend extra time on:
 * random forest,
 * gradient boosting,
 * train/test split,
-* stratified split.
+* stratified split,
+* selected features versus all features.
 
 ### Key Understanding
 
@@ -266,7 +312,70 @@ A complex model is only valuable if it performs better than simple alternatives.
 
 ---
 
-## Stage 8: Manufacturing-Focused Evaluation
+## Stage 9: Balanced Error Rate
+
+### What You Should Learn
+
+Balanced Error Rate is central to the original SECOM benchmark.
+
+Balanced accuracy is the average of the true positive rate and true negative rate.
+
+Balanced Error Rate is:
+
+> 1 - balanced accuracy
+
+Lower BER is better.
+
+### Why It Matters
+
+BER is useful when the classes are imbalanced because it gives weight to both pass and fail performance.
+
+### Spend More Time Understanding
+
+Spend extra time on:
+
+* true positive rate,
+* true negative rate,
+* balanced accuracy,
+* balanced error rate,
+* why BER is better than accuracy here.
+
+### Key Understanding
+
+BER helps evaluate both failure detection and pass detection fairly.
+
+---
+
+## Stage 10: Cross-Validation
+
+### What You Should Learn
+
+You should understand why the original benchmark used 10-fold cross-validation.
+
+Because the dataset has only 104 failures, one train/test split may be unstable.
+
+### Why It Matters
+
+Cross-validation gives a more reliable estimate of model performance.
+
+### Spend More Time Understanding
+
+Spend extra time on:
+
+* stratified cross-validation,
+* 10-fold cross-validation,
+* mean performance,
+* performance variation,
+* leakage prevention,
+* feature selection inside cross-validation.
+
+### Key Understanding
+
+Feature selection should be performed carefully so test-fold information does not leak into training.
+
+---
+
+## Stage 11: Manufacturing-Focused Evaluation
 
 ### What You Should Learn
 
@@ -278,13 +387,14 @@ Important metrics:
 * precision,
 * F1-score,
 * balanced accuracy,
+* BER,
 * confusion matrix,
 * false-negative rate,
 * precision-recall curve.
 
 ### Why It Matters
 
-In yield prediction, missing a real failure can be more important than flagging a good unit.
+In yield prediction, missing a real failure may be more important than flagging a good unit.
 
 ### Spend More Time Understanding
 
@@ -293,7 +403,7 @@ Spend extra time on:
 * confusion matrix,
 * false negatives,
 * false positives,
-* recall vs precision tradeoff,
+* recall versus precision,
 * threshold selection.
 
 ### Key Understanding
@@ -302,30 +412,31 @@ The best model is not always the model with the highest accuracy.
 
 ---
 
-## Stage 9: Feature Importance
+## Stage 12: Feature Importance and Causality Limits
 
 ### What You Should Learn
 
-You should learn how to identify which variables influence model predictions.
+You should learn how to identify which variables influence model predictions while avoiding causal overclaims.
 
 Important ideas:
 
 * feature importance,
 * permutation importance,
-* model interpretation,
-* correlated features,
-* association vs causation.
+* correlation,
+* association,
+* causation,
+* engineering validation.
 
 ### Why It Matters
 
-A model is more useful if you can explain what variables are driving predictions.
+Feature selection and feature importance can suggest what engineers should investigate, but they do not prove root cause.
 
 ### Spend More Time Understanding
 
 Spend extra time on:
 
 * feature importance limitations,
-* correlation between features,
+* correlated features,
 * avoiding causal claims,
 * communicating uncertainty.
 
@@ -335,7 +446,7 @@ Feature importance can suggest what to investigate, but it does not prove root c
 
 ---
 
-## Stage 10: Process-Regime Thinking
+## Stage 13: Process-Regime Thinking
 
 ### What You Should Learn
 
@@ -370,7 +481,7 @@ Manufacturing data often has hidden structure.
 
 ---
 
-## Stage 11: Error Analysis
+## Stage 14: Error Analysis
 
 ### What You Should Learn
 
@@ -404,7 +515,7 @@ Model mistakes often teach you more than model successes.
 
 ---
 
-## Stage 12: Communication
+## Stage 15: Communication
 
 ### What You Should Learn
 
@@ -429,6 +540,7 @@ Spend extra time on:
 
 * executive summary,
 * business problem,
+* feature-selection story,
 * visual storytelling,
 * limitations,
 * recommendations,
@@ -440,49 +552,79 @@ A strong portfolio project tells a clear technical and business story.
 
 ---
 
-# 3. Concepts You Should Spend the Most Time Understanding
+## 3. Concepts You Should Spend the Most Time Understanding
 
-## 1. Class Imbalance
+## 1. Feature Selection
 
-This is one of the most important concepts in the project.
+This is the most important concept in the updated project.
 
-You need to understand why failure prediction is different from normal classification.
+You should understand:
 
-Focus on:
+* why engineers collect many signals,
+* why many signals are irrelevant or noisy,
+* why fewer features can sometimes be better,
+* how to rank features,
+* how to compare selected features,
+* how to explain selected features to engineers.
 
-* minority class,
-* failure-class recall,
-* false negatives,
-* precision-recall tradeoff,
-* balanced accuracy.
+You should be able to say:
+
+> The purpose of feature selection is to identify the smallest useful group of signals that can help predict or investigate yield failure.
+
+---
+
+## 2. Class Imbalance
+
+This is also central.
+
+You should understand:
+
+* only about 6.6% of the dataset is failure examples,
+* normal accuracy is misleading,
+* failure recall is important,
+* false negatives matter,
+* balanced metrics are needed.
+
+You should be able to say:
+
+> Accuracy is not enough because a model can predict pass for every example and still look accurate while detecting no failures.
+
+---
+
+## 3. Balanced Error Rate
+
+Spend serious time understanding BER.
+
+You should understand:
+
+* true positive rate,
+* true negative rate,
+* balanced accuracy,
+* balanced error rate,
+* why lower BER is better.
 
 You should be able to explain:
 
-> Accuracy is not enough because a model can predict the majority class and still look good.
+> BER is useful here because it evaluates performance across both the pass and fail classes instead of letting the majority class dominate the metric.
 
 ---
 
-## 2. False Positives vs False Negatives
+## 4. Cross-Validation
 
-This is very important for semiconductor analytics.
+Spend time understanding cross-validation because the original benchmark used 10-fold cross-validation.
 
-A false positive means:
+You should understand:
 
-> The model predicts failure, but the unit actually passes.
-
-A false negative means:
-
-> The model predicts pass, but the unit actually fails.
-
-In many yield-screening situations, false negatives are more dangerous because the model misses actual risky units.
-
-You should be able to explain which error is worse depending on the manufacturing use case.
+* why one train/test split may be unstable,
+* why stratification matters,
+* why feature selection should happen inside the training folds,
+* how to report mean and variation.
 
 ---
 
-## 3. Missing Values
+## 5. Missing Values
 
-Spend extra time understanding missing values because SECOM has many of them.
+Spend extra time understanding missing values because semiconductor process data often has missing measurements.
 
 You should understand:
 
@@ -494,7 +636,21 @@ You should understand:
 
 ---
 
-## 4. Feature Importance
+## 6. False Positives vs False Negatives
+
+A false positive means:
+
+> The model predicts failure, but the entity actually passes.
+
+A false negative means:
+
+> The model predicts pass, but the entity actually fails.
+
+In many yield-screening situations, false negatives are more dangerous because the model misses actual risky units.
+
+---
+
+## 7. Feature Importance Versus Root Cause
 
 Feature importance is useful but dangerous if misunderstood.
 
@@ -502,8 +658,8 @@ You should understand:
 
 * importance does not prove causation,
 * correlated features can distort importance,
-* important features should be interpreted cautiously,
-* engineering validation is required.
+* selected features require engineering validation,
+* anonymized features limit physical interpretation.
 
 Use language like:
 
@@ -515,7 +671,7 @@ Do not say:
 
 ---
 
-## 5. PCA and Process Regimes
+## 8. PCA and Process Regimes
 
 PCA is important because it helps you visualize high-dimensional process data.
 
@@ -531,41 +687,26 @@ This is also the bridge to TDA later.
 
 ---
 
-## 6. Model Evaluation
+## 9. TDA Preparation
 
-Spend time understanding model metrics.
+For this dataset, do not start with persistent homology on individual rows.
 
-You should be comfortable explaining:
+The better future TDA extension is:
 
-* recall,
-* precision,
-* F1-score,
-* balanced accuracy,
-* confusion matrix,
-* ROC-AUC,
-* precision-recall curve.
+* Mapper for process-regime discovery,
+* topology of high-dimensional process clouds,
+* comparison of failure and pass regions,
+* nonlinear structure beyond PCA.
 
-For this project, the most important metrics are:
+The correct learning order is:
 
-* failure-class recall,
-* false-negative rate,
-* precision,
-* F1-score,
-* balanced accuracy.
-
----
-
-## 7. Business Interpretation
-
-This is what makes the project valuable.
-
-You should be able to explain:
-
-* what the model found,
-* what the model did not prove,
-* how a yield/process team could use the result,
-* what additional data would be needed,
-* what the next engineering step would be.
+1. Understand the manufacturing problem.
+2. Clean and analyze the data.
+3. Build normal ML baselines.
+4. Apply feature selection.
+5. Evaluate models correctly.
+6. Interpret results.
+7. Then add TDA and compare.
 
 ---
 
@@ -576,51 +717,28 @@ For this first project, do not spend too much time on:
 * advanced deep learning,
 * perfect hyperparameter tuning,
 * complex neural networks,
-* advanced TDA,
+* advanced persistent homology,
 * causal inference,
 * deployment,
 * real-time streaming,
 * advanced dashboards.
 
-Those can come later.
-
 The first project should focus on:
 
 * understanding the data,
 * cleaning the data,
+* feature selection,
 * building strong baselines,
 * evaluating correctly,
 * explaining results professionally.
 
 ---
 
-# 5. How This Prepares You for TDA
-
-This project prepares you for TDA because it teaches you the normal semiconductor analytics workflow first.
-
-After this project, you can add TDA by asking:
-
-* Does the process data have shape?
-* Are failures located in specific regions of the data?
-* Can Mapper reveal process regimes better than PCA?
-* Can persistent homology identify nonlinear structure?
-* Can topological features improve failure prediction?
-
-The correct learning order is:
-
-1. Understand the manufacturing problem.
-2. Clean and analyze the data.
-3. Build normal ML baselines.
-4. Evaluate models correctly.
-5. Interpret results.
-6. Then add TDA and compare.
-
----
-
-# 6. Final Learning Objective
+# 5. Final Learning Objective
 
 At the end of this project, you should be able to say:
 
-> I understand how to analyze semiconductor process data, handle missing values and class imbalance, build failure-prediction models, evaluate them using manufacturing-relevant metrics, interpret model results carefully, and communicate findings in a way that supports yield or process engineering work.
+> I understand how to analyze semiconductor process data, handle missing values and class imbalance, select relevant process signals, build failure-prediction models, evaluate them using balanced manufacturing-relevant metrics, interpret feature relevance carefully, and communicate findings in a way that supports yield or process engineering work.
 
-That is the real goal of Project 1.
+---
+

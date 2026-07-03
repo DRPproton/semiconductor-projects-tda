@@ -1,10 +1,10 @@
 # Document 1: Project Overview and General Plan
 
-# Project 1: Semiconductor Yield Prediction with SECOM
+# Project 1: Semiconductor Yield Prediction and Feature Selection with SECOM
 
 ## 1. Project Title
 
-**Semiconductor Yield Prediction and Process-Regime Analysis Using SECOM Data**
+**Semiconductor Yield Prediction and Feature Selection Using SECOM Manufacturing Data**
 
 ---
 
@@ -12,94 +12,152 @@
 
 The purpose of this project is to build a realistic semiconductor manufacturing analytics portfolio project using public data.
 
-This project will simulate the kind of analytics work that could be useful in a semiconductor yield, process, manufacturing, quality, or production engineering environment.
+This project uses the **SECOM dataset**, a semiconductor manufacturing dataset containing hundreds of anonymized process or sensor measurements and a pass/fail yield label.
 
-The main objective is to analyze semiconductor process data and predict whether a production example is likely to pass or fail final yield testing.
+The project is not only about building a classifier. The main purpose is to understand how process and sensor signals can be analyzed, ranked, and used to support semiconductor yield or process-engineering investigation.
 
-This project uses the **SECOM dataset**, a public semiconductor manufacturing dataset with many anonymized sensor or process measurements.
+The project will focus on three main ideas:
 
-The project is designed to connect your background in:
+1. Predicting pass/fail yield outcome.
+2. Identifying the most relevant process or sensor features.
+3. Explaining how selected features could support process/yield investigation.
 
-* data analytics,
-* machine learning,
-* statistics,
-* production experience,
-* previous process/yield technician experience,
-* semiconductor manufacturing,
-* future topological data analysis.
-
-The goal is not only to build a machine learning model. The goal is to understand how manufacturing data behaves and how analytics can support yield and process improvement.
+This project connects directly to semiconductor work because modern fabs collect many signals from tools, sensors, process steps, and measurement points. Not all of those signals are useful. Some contain real process information, some are irrelevant, and some are noise. The goal is to find which signals are most useful for identifying yield risk.
 
 ---
 
 ## 3. Main Business Problem
 
-In semiconductor manufacturing, many process steps happen before final testing. If a unit fails at the end of the process, the company may have already spent significant time, labor, materials, equipment usage, and inspection resources.
+Modern semiconductor manufacturing processes are monitored continuously through many signals and process measurements. However, engineers often collect many more signals than they actually need for a specific monitoring or yield-improvement problem.
 
 The business problem is:
 
-> Can we use process and sensor measurements to identify units that are more likely to fail?
+> Can we identify a small group of process or sensor signals that help predict yield failure and support process-engineering investigation?
 
-A yield or process team may want to know:
+A process or yield engineering team may want to know:
 
-* Which production examples are at higher risk?
-* Which process measurements are associated with failure?
-* Are failures concentrated in certain process regimes?
-* Can we detect abnormal behavior earlier?
-* Can we reduce scrap, rework, or yield loss?
-* Can analytics help engineers prioritize investigation?
+* Which measurements are most associated with yield failure?
+* Can a smaller group of signals predict failure reasonably well?
+* Are failures related to specific process behavior patterns?
+* Can feature selection reduce the number of signals engineers need to monitor?
+* Can this reduce time to learning after a yield excursion?
+* Can analytics help improve throughput and reduce production cost?
 
-This project does **not** prove root cause. It identifies patterns that may support engineering investigation.
+This project does **not** prove root cause. It identifies features that may be useful for further engineering review.
 
 ---
 
-## 4. Main Machine Learning Problem
+## 4. Dataset Summary
+
+The SECOM dataset represents a semiconductor manufacturing process under surveillance using process and sensor measurements.
+
+Each row represents:
+
+* one production entity,
+* associated measured process/sensor features,
+* a date/time stamp,
+* a pass/fail yield label.
+
+The label values are:
+
+* **-1 = pass**
+* **1 = fail**
+
+Dataset size:
+
+* **1,567 examples**
+* **591 features**
+* **104 failure examples**
+
+This means only about **6.6%** of examples are failures. The dataset is highly imbalanced.
+
+Because the features are anonymized, we cannot identify the exact physical meaning of each variable. We can still rank features by predictive relevance and explain how this type of workflow would help process engineers in a real fab.
+
+---
+
+## 5. Main Machine Learning Problem
 
 This is a **binary classification problem**.
 
-The model will use many process/sensor features to predict whether each example belongs to one of two classes:
+The model uses many process/sensor features to predict whether a production entity will pass or fail.
 
-* pass,
-* fail.
+The positive class should be defined as:
 
-The failure class is the most important class because failures are usually less common but more important from a manufacturing-risk perspective.
+> **Positive class = fail = 1**
 
-The machine learning question is:
+The negative class should be defined as:
 
-> Can a model use process measurements to predict pass/fail outcomes better than a simple baseline?
+> **Negative class = pass = -1**
 
-The semiconductor question is:
+The main machine learning question is:
 
-> Can process data reveal signatures associated with yield risk?
+> Can selected process/sensor features predict pass/fail yield outcome better than a simple baseline?
 
----
+The main semiconductor analytics question is:
 
-## 5. Dataset
-
-The project uses the **SECOM dataset**.
-
-The dataset contains semiconductor manufacturing process data with many anonymized numerical features and a pass/fail target label.
-
-Because the feature names are anonymized, the project cannot say exactly which physical sensor or process variable caused the failure. Instead, the project will focus on the correct analytics workflow:
-
-* data cleaning,
-* missing-value handling,
-* class-imbalance analysis,
-* exploratory data analysis,
-* dimensionality reduction,
-* machine learning,
-* model evaluation,
-* feature importance,
-* process-regime interpretation,
-* professional communication.
+> Which signals appear most relevant to downstream yield failure?
 
 ---
 
-## 6. Career Relevance
+## 6. Why Feature Selection Is Central
 
-This project is directly relevant to your goal of moving from production back toward a more technical semiconductor role.
+The SECOM dataset was created around the idea that semiconductor engineers may collect many signals, but only a smaller number may be useful for a specific monitoring or yield problem.
 
-It can support future conversations for roles such as:
+Feature selection is important because it can help:
+
+* reduce noise,
+* remove irrelevant measurements,
+* identify high-value process signals,
+* improve model interpretability,
+* support process-engineering investigation,
+* reduce time to learning after yield excursions,
+* reduce monitoring complexity,
+* improve production decision-making.
+
+The original dataset benchmark used feature selection methods that selected the **top 40 features**. For that reason, this project should compare models trained on:
+
+* all cleaned features,
+* top 40 selected features,
+* top 20 selected features,
+* top 10 selected features.
+
+The goal is to understand whether a smaller feature set can perform close to, equal to, or better than the full feature set.
+
+---
+
+## 7. Why Accuracy Is Not Enough
+
+The dataset has 104 failures out of 1,567 examples.
+
+That means approximately:
+
+* **93.4% pass**
+* **6.6% fail**
+
+A model that predicts every example as “pass” would get about 93.4% accuracy, but it would detect zero failures.
+
+For this reason, regular accuracy is not a good primary metric.
+
+The project should focus on metrics such as:
+
+* failure-class recall,
+* failure-class precision,
+* F1-score,
+* balanced accuracy,
+* balanced error rate,
+* confusion matrix,
+* false-negative rate,
+* precision-recall curve.
+
+The original dataset description uses **Balanced Error Rate**, so this project should include it as one of the main evaluation metrics.
+
+---
+
+## 8. Career Relevance
+
+This project is directly relevant to your goal of moving from production toward a more technical semiconductor role.
+
+It can support conversations for roles such as:
 
 * Yield Analyst,
 * Yield Engineering Technician,
@@ -109,62 +167,68 @@ It can support future conversations for roles such as:
 * Process Control Analyst,
 * Failure Analysis Support,
 * Manufacturing AI/ML Analyst,
-* Entry-level Yield Engineer path,
-* Entry-level Process Engineer path.
+* Yield Engineer path,
+* Process Engineer path.
 
 The professional story behind the project is:
 
-> I understand production, process/yield context, and data analytics. I can take messy semiconductor manufacturing data, clean it, model it, interpret it, and communicate useful insights for yield or process improvement.
+> I understand production, process/yield context, and data analytics. I can take messy semiconductor manufacturing data, clean it, identify relevant signals, build predictive models, evaluate them correctly, and communicate insights that may support yield or process improvement.
 
 ---
 
-## 7. Project Goals
+## 9. Main Project Goals
 
 The main goals are:
 
 1. Understand semiconductor manufacturing data from an analytics perspective.
 2. Clean a high-dimensional process dataset.
 3. Handle missing values carefully.
-4. Analyze class imbalance between pass and fail outcomes.
-5. Build baseline machine learning models.
-6. Evaluate models using manufacturing-relevant metrics.
-7. Identify features associated with failure risk.
-8. Explore whether the data contains hidden process regimes.
-9. Communicate findings in a way that would make sense to yield or process teams.
-10. Prepare the project for later TDA extension.
+4. Analyze severe class imbalance.
+5. Understand why ordinary accuracy is misleading.
+6. Use balanced metrics such as BER and balanced accuracy.
+7. Build baseline classification models.
+8. Apply feature selection methods.
+9. Compare all features versus selected features.
+10. Rank process/sensor features by predictive relevance.
+11. Interpret selected features cautiously.
+12. Explore whether failures appear in specific process regions.
+13. Prepare the project for later TDA extension through Mapper or process-shape analysis.
 
 ---
 
-## 8. Final Deliverables
+## 10. Final Deliverables
 
-By the end of the project, you should have:
+By the end of the project, you should have the following deliverables.
 
-### 1. Project README
+### Deliverable 1: Project README
 
 A professional GitHub README explaining:
 
-* the problem,
+* the business problem,
 * the dataset,
-* the methods,
-* the results,
-* the limitations,
-* the business relevance,
-* the next steps.
+* the pass/fail label structure,
+* why the dataset is imbalanced,
+* why feature selection matters,
+* methods used,
+* model results,
+* limitations,
+* next steps.
 
-### 2. Cleaned Dataset Summary
+### Deliverable 2: Cleaned Dataset Summary
 
 A section explaining:
 
 * original dataset shape,
 * number of rows,
 * number of features,
+* number of failures,
 * target distribution,
 * missing-value issues,
-* variables removed,
-* variables kept,
+* constant features removed,
+* features retained,
 * cleaning decisions.
 
-### 3. Exploratory Data Analysis Report
+### Deliverable 3: Exploratory Data Analysis Report
 
 A report showing:
 
@@ -173,10 +237,21 @@ A report showing:
 * feature distributions,
 * outliers,
 * correlations,
+* differences between pass and fail examples,
 * PCA visualizations,
 * possible process regimes.
 
-### 4. Baseline Model Comparison
+### Deliverable 4: Feature Selection Report
+
+A feature-selection section showing:
+
+* ranking methods used,
+* top selected features,
+* comparison between top 40, top 20, top 10, and all features,
+* consistency of selected features across methods,
+* feature relevance interpretation.
+
+### Deliverable 5: Baseline Model Comparison
 
 A comparison of models such as:
 
@@ -187,60 +262,62 @@ A comparison of models such as:
 * optional SGD classifier,
 * optional support vector machine.
 
-### 5. Imbalanced Classification Evaluation
+### Deliverable 6: Manufacturing-Focused Evaluation
 
-A section comparing models using:
+A model-evaluation section using:
 
-* recall,
-* precision,
-* F1-score,
+* balanced error rate,
 * balanced accuracy,
+* failure-class recall,
+* failure-class precision,
+* F1-score,
 * confusion matrix,
 * false-negative rate,
 * precision-recall curve.
 
-### 6. Feature Importance and Process Insight Summary
+### Deliverable 7: Process Insight Summary
 
-A section explaining:
+A business-focused explanation of:
 
-* which anonymized features are most associated with failure,
-* how those features differ between pass and fail groups,
-* what an engineer might investigate next,
-* why the results should not be interpreted as proof of causation.
+* which anonymized features appear most associated with failure,
+* how selected features could help process engineers,
+* what further engineering validation would be needed,
+* why the model does not prove root cause.
 
-### 7. Optional Dashboard
+### Deliverable 8: Optional Dashboard
 
-A simple visual dashboard showing:
+A simple dashboard or visual report showing:
 
-* failure rate,
-* key feature distributions,
-* model results,
+* failure percentage,
+* missing-value summary,
+* top selected features,
+* model comparison,
 * confusion matrix,
 * feature importance,
 * PCA/process-regime view.
 
 ---
 
-## 9. Recommended Project Duration
+## 11. Recommended Project Duration
 
-A realistic timeline is **3 to 5 weeks**.
+A realistic timeline is **4 to 5 weeks**.
 
 Recommended schedule:
 
-* **Week 1:** Dataset understanding, cleaning, missing values.
-* **Week 2:** Exploratory analysis, PCA, initial modeling.
-* **Week 3:** Model evaluation, class imbalance, feature importance.
-* **Week 4:** Process interpretation, error analysis, final report.
-* **Week 5:** Optional dashboard and optional TDA preparation.
+* **Week 1:** Dataset understanding, cleaning, missing values, target imbalance.
+* **Week 2:** EDA, feature distributions, PCA, process-structure exploration.
+* **Week 3:** Feature selection and baseline modeling.
+* **Week 4:** Cross-validation, balanced metrics, error analysis, feature interpretation.
+* **Week 5:** Final report, README, optional dashboard, optional TDA planning.
 
-A strong first version can be completed in about **20 to 30 focused hours**.
+A strong first version can be completed in about **25 to 35 focused hours**.
 
 ---
 
-## 10. Final Portfolio Message
+## 12. Final Portfolio Message
 
 The final message of this project should be:
 
-> I can apply data analytics and machine learning to semiconductor manufacturing data. I understand messy process data, class imbalance, yield risk, process-regime analysis, and the importance of communicating results carefully to engineering teams.
+> I can apply data analytics and machine learning to semiconductor manufacturing data. I understand high-dimensional process signals, missing values, class imbalance, feature selection, yield-risk modeling, balanced evaluation metrics, and careful engineering interpretation.
 
 This project should become the first piece of a larger semiconductor analytics portfolio.

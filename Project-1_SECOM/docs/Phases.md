@@ -1,6 +1,6 @@
 # Document 2: Project Phases and Execution Steps
 
-# Project 1 Execution Plan: Semiconductor Yield Prediction with SECOM
+# Project 1 Execution Plan: Semiconductor Yield Prediction and Feature Selection with SECOM
 
 ## Phase 0: Semiconductor Context Setup
 
@@ -10,29 +10,30 @@ Understand the semiconductor meaning of the project before analyzing the data.
 
 ### Main Idea
 
-This is not just a machine learning project. It is a manufacturing analytics project.
-
-You need to understand what the model would mean in a yield or process environment.
+This is not just a machine learning project. It is a semiconductor manufacturing analytics project focused on process signals, yield failure, and feature relevance.
 
 ### Tasks
 
-1. Define what yield means.
-2. Define what pass/fail means in manufacturing.
-3. Define what process variation means.
-4. Define what process drift means.
-5. Define what an excursion means.
-6. Define what a false positive means.
-7. Define what a false negative means.
-8. Decide which error is more serious in a yield-screening context.
-9. Write a short business-context section.
+1. Define yield.
+2. Define pass/fail yield testing.
+3. Define process variation.
+4. Define process drift.
+5. Define yield excursion.
+6. Define process monitoring.
+7. Define false positive.
+8. Define false negative.
+9. Explain why false negatives may be dangerous in yield prediction.
+10. Explain why engineers collect many process signals.
+11. Explain why not all signals are equally useful.
+12. Write a short business-context section.
 
 ### Expected Output
 
-A short section titled **Business Context**.
+A section titled **Business Context**.
 
 ### Key Question
 
-> If a yield engineer used this model, what decision would it support?
+> If a yield or process engineer used this model, what decision would it support?
 
 ---
 
@@ -47,11 +48,12 @@ Download the SECOM dataset and organize the project professionally.
 1. Download the SECOM dataset from a public source.
 2. Save the original raw data without modification.
 3. Create a separate cleaned-data location.
-4. Create folders for reports, figures, notebooks, and documentation.
+4. Create folders for reports, figures, notebooks, models, and documentation.
 5. Create a README draft.
 6. Record the dataset source.
 7. Record what each file represents.
-8. Confirm that no Microchip confidential data is included.
+8. Record the label definition: -1 = pass, 1 = fail.
+9. Confirm that no Microchip confidential data is included.
 
 ### Expected Output
 
@@ -79,12 +81,13 @@ Define the analytics problem clearly.
 
 1. Identify the target variable.
 2. Identify the feature matrix.
-3. Define the positive class.
-4. Decide whether the class of interest is pass or fail.
+3. Define the positive class as failure.
+4. Define the negative class as pass.
 5. Write the business problem in plain English.
 6. Write the machine learning problem.
 7. Write the semiconductor manufacturing interpretation.
-8. Choose the metrics that matter most.
+8. Explain why feature selection is part of the main problem.
+9. Choose manufacturing-relevant evaluation metrics.
 
 ### Expected Output
 
@@ -92,7 +95,7 @@ A section titled **Problem Definition**.
 
 ### Key Question
 
-> What exactly are we predicting, and why does it matter?
+> Are we only predicting failure, or are we also identifying useful process signals?
 
 ---
 
@@ -106,14 +109,19 @@ Understand the dataset structure and major data-quality problems.
 
 1. Count the number of rows.
 2. Count the number of columns.
-3. Identify the target values.
-4. Count missing values per column.
-5. Count missing values per row.
-6. Identify columns with excessive missing values.
-7. Identify columns with no variation.
-8. Check for duplicate rows.
-9. Check whether all features are numerical.
-10. Check the pass/fail class distribution.
+3. Confirm that the dataset has 1,567 examples.
+4. Confirm that the dataset has 591 features.
+5. Count the number of pass examples.
+6. Count the number of fail examples.
+7. Confirm that there are 104 failures.
+8. Calculate the failure percentage.
+9. Count missing values per column.
+10. Count missing values per row.
+11. Identify columns with excessive missing values.
+12. Identify columns with no variation.
+13. Check for duplicate rows.
+14. Check whether all features are numerical.
+15. Inspect the timestamp field if available.
 
 ### Expected Output
 
@@ -131,6 +139,10 @@ A section titled **Data Overview**.
 
 Create a disciplined strategy for handling missing values.
 
+### Main Idea
+
+Missing values in semiconductor process data may not be random. A missing value can represent skipped measurement, unavailable sensor, different process route, tool issue, or data-collection problem.
+
 ### Tasks
 
 1. Calculate missing percentage per feature.
@@ -140,16 +152,17 @@ Create a disciplined strategy for handling missing values.
 5. Choose an imputation strategy.
 6. Decide whether to add missing-value indicators.
 7. Document every cleaning decision.
-8. Make sure the target variable is not used during cleaning in a way that creates leakage.
+8. Avoid target leakage during imputation.
+9. Compare whether missingness itself appears related to failure.
 
 ### Recommended First Strategy
 
 For the first version:
 
 1. Remove columns with extremely high missing values.
-2. Remove columns with almost no variation.
+2. Remove constant or near-constant columns.
 3. Use median imputation for remaining numerical columns.
-4. Add missing indicators only if missingness appears useful.
+4. Add missing-value indicators only if missingness appears informative.
 
 ### Expected Output
 
@@ -165,18 +178,24 @@ A section titled **Data Cleaning Strategy**.
 
 ### Goal
 
-Understand the class distribution.
+Understand the pass/fail class distribution.
+
+### Main Idea
+
+The dataset is highly imbalanced. Failures represent only about 6.6% of all examples.
 
 ### Tasks
 
 1. Count pass examples.
 2. Count fail examples.
-3. Calculate the failure percentage.
-4. Create a class-distribution chart.
-5. Explain why accuracy may be misleading.
-6. Define the false-negative risk.
-7. Define the false-positive risk.
-8. Select evaluation metrics.
+3. Calculate pass percentage.
+4. Calculate fail percentage.
+5. Create a class-distribution chart.
+6. Explain why normal accuracy is misleading.
+7. Define the majority-class baseline.
+8. Define false-negative risk.
+9. Define false-positive risk.
+10. Select evaluation metrics.
 
 ### Recommended Metrics
 
@@ -186,6 +205,7 @@ Use:
 * failure-class precision,
 * F1-score,
 * balanced accuracy,
+* balanced error rate,
 * confusion matrix,
 * false-negative rate,
 * precision-recall curve.
@@ -204,18 +224,20 @@ A section titled **Class Imbalance**.
 
 ### Goal
 
-Explore how the process features behave.
+Explore how process features behave for pass and fail examples.
 
 ### Tasks
 
 1. Analyze feature distributions.
-2. Compare selected features for pass vs fail examples.
+2. Compare selected features for pass versus fail examples.
 3. Identify skewed features.
 4. Identify outliers.
 5. Identify low-variance features.
 6. Identify highly correlated features.
 7. Compare feature averages between pass and fail groups.
-8. Create visual summaries for important features.
+8. Identify features with strong distribution differences.
+9. Look for features where failures appear in extreme ranges.
+10. Create visual summaries for important candidate features.
 
 ### What to Look For
 
@@ -237,7 +259,53 @@ A section titled **Exploratory Data Analysis**.
 
 ---
 
-## Phase 7: Dimensionality Reduction and Process Structure
+## Phase 7: Feature Selection Benchmark
+
+### Goal
+
+Rank features according to their relevance for predicting yield failure.
+
+### Main Idea
+
+Feature selection is central to this dataset. The original benchmark selected the top 40 features using several feature-selection methods. This project should reproduce that idea in a modern, practical way.
+
+### Tasks
+
+1. Rank features using simple statistical methods.
+2. Compare pass/fail separation for each feature.
+3. Rank features using model-based importance.
+4. Rank features using permutation importance if possible.
+5. Select top 40 features.
+6. Select top 20 features.
+7. Select top 10 features.
+8. Compare models trained on all features versus selected features.
+9. Identify features that appear consistently important across methods.
+10. Create a feature-ranking table.
+11. Explain selected features as candidates for process review.
+
+### Possible Feature Selection Methods
+
+Use a practical mix of:
+
+* signal-to-noise ranking,
+* t-test ranking,
+* F-test ranking,
+* Pearson correlation ranking,
+* random forest importance,
+* gradient boosting importance,
+* permutation importance.
+
+### Expected Output
+
+A section titled **Feature Selection Benchmark**.
+
+### Key Question
+
+> Can a smaller set of process signals predict failures almost as well as, or better than, the full feature set?
+
+---
+
+## Phase 8: Dimensionality Reduction and Process Structure
 
 ### Goal
 
@@ -245,14 +313,16 @@ Understand the high-dimensional structure of the data.
 
 ### Tasks
 
-1. Remove near-zero-variance features.
-2. Identify correlated groups of variables.
-3. Use PCA to visualize the data.
-4. Color PCA plots by pass/fail status.
-5. Look for possible clusters.
-6. Look for possible abnormal regions.
-7. Decide whether failures appear scattered or concentrated.
-8. Explain the limitations of PCA.
+1. Use scaled cleaned features.
+2. Apply PCA for visualization.
+3. Color PCA plots by pass/fail label.
+4. Color PCA plots by model prediction.
+5. Color PCA plots by prediction error type.
+6. Look for possible clusters.
+7. Look for possible abnormal regions.
+8. Decide whether failures appear scattered or concentrated.
+9. Explain PCA limitations.
+10. Explain how this phase prepares the project for Mapper or TDA later.
 
 ### Expected Output
 
@@ -264,7 +334,7 @@ A section titled **Dimensionality Reduction and Process Structure**.
 
 ---
 
-## Phase 8: Baseline Modeling
+## Phase 9: Baseline Modeling
 
 ### Goal
 
@@ -278,8 +348,10 @@ Build simple baseline models before using advanced methods.
 4. Train a simple linear model.
 5. Train a tree-based model.
 6. Train a boosting model.
-7. Compare all models using the same metrics.
-8. Save results in a model-comparison table.
+7. Train models on all cleaned features.
+8. Train models on selected feature sets.
+9. Compare results using the same metrics.
+10. Save results in a model-comparison table.
 
 ### Models to Compare
 
@@ -292,17 +364,57 @@ Use:
 * optional SGD classifier,
 * optional support vector machine.
 
+### Feature Sets to Compare
+
+Compare:
+
+* all cleaned features,
+* top 40 selected features,
+* top 20 selected features,
+* top 10 selected features.
+
 ### Expected Output
 
 A section titled **Baseline Model Results**.
 
 ### Key Question
 
-> Which simple model performs best, and does it detect failures better than the baseline?
+> Which model and feature set performs best for detecting failures?
 
 ---
 
-## Phase 9: Manufacturing-Focused Model Evaluation
+## Phase 10: Cross-Validation and Balanced Error Rate
+
+### Goal
+
+Evaluate models in a way that aligns with the original SECOM benchmark.
+
+### Main Idea
+
+The original dataset description suggests 10-fold cross-validation and Balanced Error Rate. This project should include cross-validation so the results are more reliable than a single train/test split.
+
+### Tasks
+
+1. Use stratified cross-validation.
+2. Compare models using 10-fold cross-validation if practical.
+3. Calculate balanced accuracy.
+4. Calculate balanced error rate.
+5. Compare mean performance across folds.
+6. Compare variation across folds.
+7. Report whether selected features improve stability.
+8. Compare your results with the original baseline conceptually.
+
+### Expected Output
+
+A section titled **Cross-Validation and Balanced Error Rate**.
+
+### Key Question
+
+> Does the model perform consistently across folds, or is performance unstable because failures are rare?
+
+---
+
+## Phase 11: Manufacturing-Focused Model Evaluation
 
 ### Goal
 
@@ -315,11 +427,12 @@ Evaluate models in a way that makes sense for yield and process teams.
 3. Compare precision for the failure class.
 4. Compare F1-score.
 5. Compare balanced accuracy.
-6. Analyze false positives.
-7. Analyze false negatives.
-8. Consider threshold adjustment.
-9. Explain the precision-recall tradeoff.
-10. Select the best model for a yield-screening use case.
+6. Compare balanced error rate.
+7. Analyze false positives.
+8. Analyze false negatives.
+9. Consider threshold adjustment.
+10. Explain the precision-recall tradeoff.
+11. Select the best model for a yield-screening use case.
 
 ### Expected Output
 
@@ -331,7 +444,7 @@ A section titled **Model Evaluation**.
 
 ---
 
-## Phase 10: Feature Importance and Process Interpretation
+## Phase 12: Feature Importance and Process Interpretation
 
 ### Goal
 
@@ -341,11 +454,12 @@ Identify which features are most associated with failure predictions.
 
 1. Extract feature importance from tree-based models.
 2. Compare important features across models.
-3. Study the distributions of top features.
-4. Check whether important features are correlated.
-5. Check whether important features have missing-value problems.
-6. Write careful interpretations.
-7. Avoid causal claims.
+3. Compare selected features across feature-selection methods.
+4. Study the distributions of top features.
+5. Check whether important features are correlated.
+6. Check whether important features have missing-value problems.
+7. Write careful interpretations.
+8. Avoid causal claims.
 
 ### Correct Language
 
@@ -372,33 +486,7 @@ A section titled **Feature Importance and Process Insight**.
 
 ---
 
-## Phase 11: Process-Regime Analysis
-
-### Goal
-
-Look for groups or regions of process behavior associated with higher failure risk.
-
-### Tasks
-
-1. Use PCA or other visual methods to look for clusters.
-2. Color visualizations by pass/fail status.
-3. Identify whether failures cluster in certain regions.
-4. Compare model predictions across regions.
-5. Identify outlier groups.
-6. Write hypotheses about possible process regimes.
-7. Explain what additional real-world data would help.
-
-### Expected Output
-
-A section titled **Process-Regime Analysis**.
-
-### Key Question
-
-> Are failures randomly distributed, or do they appear concentrated in specific process regions?
-
----
-
-## Phase 12: Error Analysis
+## Phase 13: Error Analysis
 
 ### Goal
 
@@ -425,20 +513,52 @@ A section titled **Error Analysis**.
 
 ---
 
-## Phase 13: Final Model Selection
+## Phase 14: Optional Time-Aware Validation
 
 ### Goal
 
-Choose the best model and explain why.
+Use the timestamp to evaluate whether the model can generalize over time.
+
+### Main Idea
+
+Random cross-validation is useful for benchmarking, but semiconductor processes can drift over time. A time-aware validation asks whether earlier data can predict later failures.
+
+### Tasks
+
+1. Inspect the timestamp field.
+2. Sort examples by time.
+3. Train on earlier examples.
+4. Test on later examples.
+5. Compare with random cross-validation.
+6. Discuss whether performance changes over time.
+7. Explain how time drift could affect real deployment.
+
+### Expected Output
+
+An optional section titled **Time-Aware Validation**.
+
+### Key Question
+
+> Does the model still work when tested on later production examples?
+
+---
+
+## Phase 15: Final Model Selection
+
+### Goal
+
+Choose the best model and feature set.
 
 ### Tasks
 
 1. Compare all models in one table.
-2. Choose the best model.
-3. Explain why it is best.
-4. Discuss tradeoffs.
-5. Include limitations.
-6. Recommend next steps.
+2. Compare all feature sets in one table.
+3. Choose the best model.
+4. Choose the best feature-selection strategy.
+5. Explain why it is best.
+6. Discuss tradeoffs.
+7. Include limitations.
+8. Recommend next steps.
 
 ### Selection Criteria
 
@@ -447,8 +567,9 @@ Consider:
 * failure-class recall,
 * failure-class precision,
 * balanced accuracy,
+* balanced error rate,
 * interpretability,
-* robustness,
+* stability across cross-validation,
 * usefulness for engineering investigation.
 
 ### Expected Output
@@ -457,11 +578,11 @@ A section titled **Final Model Selection**.
 
 ### Key Question
 
-> Which model would I present to a yield or process team, and why?
+> Which model and feature set would I present to a yield or process team, and why?
 
 ---
 
-## Phase 14: Final Report
+## Phase 16: Final Report
 
 ### Goal
 
@@ -473,15 +594,17 @@ Create a polished professional report.
 2. Business Problem
 3. Dataset Description
 4. Data Quality Issues
-5. Exploratory Data Analysis
-6. Modeling Approach
-7. Model Evaluation
-8. Feature Importance
-9. Process-Regime Analysis
-10. Error Analysis
-11. Limitations
-12. Recommendations
-13. Next Steps
+5. Class Imbalance
+6. Exploratory Data Analysis
+7. Feature Selection
+8. Modeling Approach
+9. Cross-Validation and BER
+10. Model Evaluation
+11. Feature Importance
+12. Error Analysis
+13. Limitations
+14. Recommendations
+15. Next Steps
 
 ### Expected Output
 
@@ -493,7 +616,7 @@ A final project report in Markdown, PDF, or notebook form.
 
 ---
 
-## Phase 15: Portfolio README
+## Phase 17: Portfolio README
 
 ### Goal
 
@@ -505,13 +628,15 @@ Create a clean GitHub README.
 2. Short description
 3. Business problem
 4. Dataset
-5. Methods used
-6. Main results
-7. Key charts
-8. Lessons learned
-9. Limitations
-10. Next steps
-11. How to run the project
+5. Label explanation
+6. Why feature selection matters
+7. Methods used
+8. Main results
+9. Key charts
+10. Lessons learned
+11. Limitations
+12. Next steps
+13. How to run the project
 
 ### Expected Output
 
