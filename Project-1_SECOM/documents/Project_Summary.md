@@ -1,0 +1,11 @@
+# Project Summary
+
+| **Item**                 | **Project decision**                                                                                                                                                                                            |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Project title            | Semiconductor Yield Prediction and Feature Selection with SECOM                                                                                                                                                 |
+| Dataset                  | SECOM public semiconductor manufacturing dataset from UCI Machine Learning Repository.                                                                                                                          |
+| Dataset shape            | 1,567 examples and 591 real-valued features.                                                                                                                                                                    |
+| Label meaning            | -1 = pass; 1 = fail. Positive class is fail.                                                                                                                                                                    |
+| Failure count            | 104 failures, about 6.6% of examples.                                                                                                                                                                           |
+| Main problem             | Can a smaller group of process/sensor features predict yield failure and support process-engineering investigation?                                                                                             |
+| What could be done       | Analyzed high-dimensional semiconductor process data, selecte relevant signals, evaluate rare-failure prediction using balanced metrics, and communicate findings as engineering investigation candidates. |
