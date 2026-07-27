@@ -1,5 +1,10 @@
 # Project Summary
 
+### SECOM Semiconductor 
+#### Yield Prediction and Feature Selection through a Process/Yield Engineer Lens
+
+<br>
+
 | **Item**                 | **Project decision**                                                                                                                                                                                            |
 |--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Project title            | Semiconductor Yield Prediction and Feature Selection with SECOM                                                                                                                                                 |
