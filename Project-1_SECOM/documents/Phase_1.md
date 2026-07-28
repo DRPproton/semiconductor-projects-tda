@@ -21,7 +21,7 @@
 ~~**Stop condition:** Raw data is stored separately and never overwritten.~~
 
 
-## Phase 2: Problem Framing
+## Phase 1.2: Problem Framing
 
 **Goal:** Define the business, ML, and semiconductor versions of the problem.
 
