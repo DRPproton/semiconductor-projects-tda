@@ -1,3 +1,6 @@
+import pandas as pd
+import numpy as np
+
 def constant_near_constant_report(
     X: pd.DataFrame,
     near_constant_threshold: float = 0.98
