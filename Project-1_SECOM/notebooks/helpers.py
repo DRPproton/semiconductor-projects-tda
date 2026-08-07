@@ -1,5 +1,10 @@
 import pandas as pd
 import numpy as np
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
+from missing_features_helper import DropHighMissingFeatures
 
 def constant_near_constant_report(
     X: pd.DataFrame,
@@ -323,3 +328,50 @@ def missingness_by_target_report(X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
     )
 
     return report
+
+
+def create_pipeline(threshold=0.50, 
+                    imputer=SimpleImputer(strategy="median"),
+                    scaler=StandardScaler(), 
+                    classifier=LogisticRegression(class_weight="balanced", max_iter=5000,random_state=42),
+                    ):
+    
+    # -------------------------------------------------------------
+    # If use_imputer=True:
+    #     Replace missing values using the selected strategy.
+    #
+    # If use_imputer=False:
+    #     Pass the original NaN values directly to the model.
+    # -------------------------------------------------------------
+    use_imputer = imputer if imputer is not None else "passthrough"
+
+    # -------------------------------------------------------------
+    # SCALER STEP
+    # -------------------------------------------------------------
+    # If scaler=None, skip scaling.
+    #
+    # This is useful for tree-based models such as
+    # HistGradientBoostingClassifier, RandomForest, etc.
+    # -------------------------------------------------------------
+    scaler_step = scaler if scaler is not None else "passthrough"
+
+    return Pipeline(
+        steps=[
+            (
+                "drop_high_missing",
+                DropHighMissingFeatures(threshold=threshold),
+            ),
+            (
+                "imputer",
+                use_imputer,
+            ),
+            (
+                "scaler",
+                scaler_step,
+            ),
+            (
+                "classifier",
+                classifier,
+            ),
+        ]
+)
