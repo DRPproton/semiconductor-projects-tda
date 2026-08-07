@@ -1,4 +1,4 @@
-# Phase 6: Process-Oriented EDA
+# Phase 5: Process-Oriented EDA
 
 **Goal:** Explore features as process/sensor signals.
 
