@@ -5,6 +5,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from missing_features_helper import DropHighMissingFeatures
+from sklearn.model_selection import cross_validate, RepeatedStratifiedKFold
+from sklearn.metrics import make_scorer, recall_score, precision_score, f1_score
+
 
 def constant_near_constant_report(
     X: pd.DataFrame,
@@ -375,3 +378,246 @@ def create_pipeline(threshold=0.50,
             ),
         ]
 )
+
+
+# ---------------------------------------------------------
+# SECOM class labels
+# ---------------------------------------------------------
+PASS_LABEL = -1
+FAIL_LABEL = 1
+
+
+# ---------------------------------------------------------
+# Custom scorers focused on the failure class
+# ---------------------------------------------------------
+failure_recall = make_scorer(
+    recall_score,
+    pos_label=FAIL_LABEL,
+    zero_division=0
+)
+
+failure_precision = make_scorer(
+    precision_score,
+    pos_label=FAIL_LABEL,
+    zero_division=0
+)
+
+failure_f1 = make_scorer(
+    f1_score,
+    pos_label=FAIL_LABEL,
+    zero_division=0
+)
+
+
+# ---------------------------------------------------------
+# Metrics evaluated during cross-validation
+# ---------------------------------------------------------
+SCORING = {
+    "balanced_accuracy": "balanced_accuracy",
+    "failure_recall": failure_recall,
+    "failure_precision": failure_precision,
+    "failure_f1": failure_f1,
+    "average_precision": "average_precision",
+}
+
+
+def evaluate_pipeline_cv(
+    pipeline,
+    X,
+    y,
+    pipeline_name="model",
+    n_splits=5,
+    n_repeats=5,
+    random_state=42,
+    n_jobs=-1,
+):
+    """
+    Evaluate a classification pipeline using repeated stratified
+    cross-validation.
+
+    Designed for the SECOM semiconductor dataset where:
+
+        -1 = pass
+         1 = fail
+
+    The function evaluates:
+        - balanced accuracy
+        - balanced error rate (BER)
+        - failure recall
+        - false-negative rate (FNR)
+        - failure precision
+        - failure F1-score
+        - average precision
+
+    Parameters
+    ----------
+    pipeline :
+        A scikit-learn estimator or Pipeline.
+
+    X : pd.DataFrame
+        Feature matrix.
+
+    y : pd.Series
+        Target variable.
+
+    pipeline_name : str
+        Name used in the returned summary table.
+
+    n_splits : int, default=5
+        Number of folds used in each repetition.
+
+    n_repeats : int, default=5
+        Number of times the stratified cross-validation is repeated.
+
+    random_state : int, default=42
+        Controls reproducibility of the CV splits.
+
+    n_jobs : int, default=-1
+        Number of CPU cores to use.
+        -1 uses all available processors.
+
+    Returns
+    -------
+    summary : pd.DataFrame
+        One-row dataframe containing mean and standard deviation
+        for each metric.
+
+    raw_scores : dict
+        Original results returned by sklearn.cross_validate().
+        Useful if you want to inspect individual fold scores.
+    """
+
+    # -----------------------------------------------------
+    # Basic safety checks
+    # -----------------------------------------------------
+
+    # X and y should represent the same rows.
+    if len(X) != len(y):
+        raise ValueError("X and y must contain the same number of rows.")
+
+    # Make sure both SECOM classes exist.
+    unique_labels = set(pd.Series(y).unique())
+
+    expected_labels = {PASS_LABEL, FAIL_LABEL}
+
+    if not expected_labels.issubset(unique_labels):
+        raise ValueError(
+            f"Expected labels {expected_labels}, "
+            f"but found {unique_labels}."
+        )
+
+    # -----------------------------------------------------
+    # Repeated Stratified K-Fold
+    #
+    # Stratification attempts to preserve the pass/fail
+    # proportion inside every validation fold.
+    #
+    # This is especially important because SECOM has only
+    # 104 failure observations.
+    # -----------------------------------------------------
+    cv = RepeatedStratifiedKFold(
+        n_splits=n_splits,
+        n_repeats=n_repeats,
+        random_state=random_state,
+    )
+
+    # -----------------------------------------------------
+    # Run cross-validation
+    #
+    # Every preprocessing step inside the pipeline is fitted
+    # separately on each training fold.
+    #
+    # This prevents preprocessing leakage from the validation
+    # folds into the training process.
+    # -----------------------------------------------------
+    raw_scores = cross_validate(
+        estimator=pipeline,
+        X=X,
+        y=y,
+        cv=cv,
+        scoring=SCORING,
+        n_jobs=n_jobs,
+        return_train_score=False,
+        error_score="raise",
+    )
+
+    # -----------------------------------------------------
+    # Extract the validation scores
+    # -----------------------------------------------------
+    balanced_accuracy = raw_scores["test_balanced_accuracy"]
+    failure_recall_scores = raw_scores["test_failure_recall"]
+    failure_precision_scores = raw_scores["test_failure_precision"]
+    failure_f1_scores = raw_scores["test_failure_f1"]
+    average_precision_scores = raw_scores["test_average_precision"]
+
+    # -----------------------------------------------------
+    # Derived manufacturing-relevant metrics
+    #
+    # BER:
+    #   lower is better
+    #
+    # FNR:
+    #   percentage of true failures that were missed
+    # -----------------------------------------------------
+    ber_scores = 1 - balanced_accuracy
+
+    false_negative_rate_scores = 1 - failure_recall_scores
+
+    # -----------------------------------------------------
+    # Create one summary row for this pipeline
+    # -----------------------------------------------------
+    summary = pd.DataFrame({
+        "pipeline": [pipeline_name],
+
+        "balanced_accuracy_mean": [
+            balanced_accuracy.mean()
+        ],
+        "balanced_accuracy_std": [
+            balanced_accuracy.std()
+        ],
+
+        "ber_mean": [
+            ber_scores.mean()
+        ],
+        "ber_std": [
+            ber_scores.std()
+        ],
+
+        "failure_recall_mean": [
+            failure_recall_scores.mean()
+        ],
+        "failure_recall_std": [
+            failure_recall_scores.std()
+        ],
+
+        "false_negative_rate_mean": [
+            false_negative_rate_scores.mean()
+        ],
+
+        "failure_precision_mean": [
+            failure_precision_scores.mean()
+        ],
+        "failure_precision_std": [
+            failure_precision_scores.std()
+        ],
+
+        "failure_f1_mean": [
+            failure_f1_scores.mean()
+        ],
+        "failure_f1_std": [
+            failure_f1_scores.std()
+        ],
+
+        "average_precision_mean": [
+            average_precision_scores.mean()
+        ],
+        "average_precision_std": [
+            average_precision_scores.std()
+        ],
+
+        "mean_fit_time": [
+            raw_scores["fit_time"].mean()
+        ],
+    })
+
+    return summary, raw_scores
