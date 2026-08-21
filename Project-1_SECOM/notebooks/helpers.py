@@ -621,3 +621,463 @@ def evaluate_pipeline_cv(
     })
 
     return summary, raw_scores
+
+
+def build_feature_eda_report(
+    X: pd.DataFrame,
+    y: pd.Series,
+    pass_label=-1,
+    fail_label=1,
+    lower_quantile=0.05,
+    upper_quantile=0.95,
+) -> pd.DataFrame:
+    """
+    Create a feature-level EDA report for the SECOM dataset.
+
+    Each row in the returned dataframe represents one feature.
+
+    The report describes:
+
+    1. Overall feature behavior
+       - missing rate
+       - mean
+       - median
+       - standard deviation
+       - variance
+       - min / max
+       - skew
+       - IQR
+       - IQR-based outlier rate
+       - number of unique values
+
+    2. Pass vs fail behavior
+       - pass mean / median
+       - fail mean / median
+       - mean difference
+       - median difference
+       - standardized mean difference
+
+    3. Failure behavior in extreme regions
+       - 5th percentile of PASS population
+       - 95th percentile of PASS population
+       - percentage of FAIL examples outside those limits
+
+    SECOM labels:
+        -1 = pass
+         1 = fail
+
+    Parameters
+    ----------
+    X : pd.DataFrame
+        Feature matrix. Should contain numerical process/sensor features.
+
+    y : pd.Series
+        Target labels aligned with X.
+
+    pass_label : int, default=-1
+        Label representing passing examples.
+
+    fail_label : int, default=1
+        Label representing failing examples.
+
+    lower_quantile : float, default=0.05
+        Lower PASS distribution threshold used for extreme-value analysis.
+
+    upper_quantile : float, default=0.95
+        Upper PASS distribution threshold used for extreme-value analysis.
+
+    Returns
+    -------
+    pd.DataFrame
+        One row per feature with EDA statistics.
+    """
+
+    # ------------------------------------------------------------------
+    # Safety checks
+    # ------------------------------------------------------------------
+
+    if len(X) != len(y):
+        raise ValueError("X and y must contain the same number of rows.")
+
+    if not X.index.equals(y.index):
+        raise ValueError("X and y indexes must match.")
+
+    # Boolean masks identifying PASS and FAIL rows.
+    pass_mask = y == pass_label
+    fail_mask = y == fail_label
+
+    n_pass = pass_mask.sum()
+    n_fail = fail_mask.sum()
+
+    if n_pass == 0 or n_fail == 0:
+        raise ValueError(
+            "Both pass and fail classes must exist in the target."
+        )
+
+    # This will contain one dictionary for every feature.
+    rows = []
+
+    # ------------------------------------------------------------------
+    # Analyze every feature independently
+    # ------------------------------------------------------------------
+
+    for col in X.columns:
+
+        s = X[col]
+
+        # Skip non-numeric columns.
+        # Timestamp, for example, should normally be analyzed separately.
+        if not pd.api.types.is_numeric_dtype(s):
+            continue
+
+        # --------------------------------------------------------------
+        # BASIC DATA QUALITY
+        # --------------------------------------------------------------
+
+        n_total = len(s)
+        n_missing = s.isna().sum()
+        missing_rate = n_missing / n_total
+
+        # Values available for analysis.
+        observed = s.dropna()
+
+        n_observed = len(observed)
+        n_unique = observed.nunique()
+
+        # If the feature contains no observed values, most statistics
+        # cannot be calculated.
+        if n_observed == 0:
+            rows.append({
+                "feature": col,
+                "n_observed": 0,
+                "n_missing": n_missing,
+                "missing_rate": missing_rate,
+            })
+            continue
+
+        # --------------------------------------------------------------
+        # OVERALL DISTRIBUTION
+        # --------------------------------------------------------------
+
+        mean = observed.mean()
+        median = observed.median()
+        std = observed.std()
+        variance = observed.var()
+
+        minimum = observed.min()
+        maximum = observed.max()
+
+        # Skew measures asymmetry.
+        #
+        # Around 0:
+        #     approximately symmetric
+        #
+        # Strong positive:
+        #     long right tail
+        #
+        # Strong negative:
+        #     long left tail
+        skew = observed.skew()
+
+        # --------------------------------------------------------------
+        # INTERQUARTILE RANGE
+        # --------------------------------------------------------------
+
+        q1 = observed.quantile(0.25)
+        q3 = observed.quantile(0.75)
+
+        iqr = q3 - q1
+
+        # Standard Tukey outlier boundaries.
+        lower_iqr_bound = q1 - (1.5 * iqr)
+        upper_iqr_bound = q3 + (1.5 * iqr)
+
+        # --------------------------------------------------------------
+        # OUTLIER RATE
+        # --------------------------------------------------------------
+        #
+        # We calculate the percentage of observed values that fall
+        # outside the IQR boundaries.
+        #
+        # Important:
+        # An outlier is NOT automatically a bad data point.
+        # In semiconductor data, extreme observations may represent
+        # process excursions or unusual manufacturing conditions.
+        # --------------------------------------------------------------
+
+        if iqr > 0:
+
+            outlier_mask = (
+                (observed < lower_iqr_bound)
+                | (observed > upper_iqr_bound)
+            )
+
+            outlier_count = outlier_mask.sum()
+
+            outlier_rate = (
+                outlier_count / n_observed
+            )
+
+        else:
+            outlier_count = 0
+            outlier_rate = 0.0
+
+        # --------------------------------------------------------------
+        # SPLIT FEATURE INTO PASS AND FAIL POPULATIONS
+        # --------------------------------------------------------------
+
+        pass_values = s[pass_mask].dropna()
+        fail_values = s[fail_mask].dropna()
+
+        pass_count = len(pass_values)
+        fail_count = len(fail_values)
+
+        # --------------------------------------------------------------
+        # PASS DISTRIBUTION
+        # --------------------------------------------------------------
+
+        pass_mean = (
+            pass_values.mean()
+            if pass_count > 0
+            else np.nan
+        )
+
+        pass_median = (
+            pass_values.median()
+            if pass_count > 0
+            else np.nan
+        )
+
+        pass_std = (
+            pass_values.std()
+            if pass_count > 1
+            else np.nan
+        )
+
+        # --------------------------------------------------------------
+        # FAIL DISTRIBUTION
+        # --------------------------------------------------------------
+
+        fail_mean = (
+            fail_values.mean()
+            if fail_count > 0
+            else np.nan
+        )
+
+        fail_median = (
+            fail_values.median()
+            if fail_count > 0
+            else np.nan
+        )
+
+        fail_std = (
+            fail_values.std()
+            if fail_count > 1
+            else np.nan
+        )
+
+        # --------------------------------------------------------------
+        # PASS / FAIL DIFFERENCES
+        # --------------------------------------------------------------
+
+        mean_difference = fail_mean - pass_mean
+        median_difference = fail_median - pass_median
+
+        # --------------------------------------------------------------
+        # STANDARDIZED MEAN DIFFERENCE
+        #
+        # Similar to Cohen's d.
+        #
+        # This lets us compare features even though their numerical
+        # scales may be completely different.
+        #
+        # Positive:
+        #     failures tend to have larger values
+        #
+        # Negative:
+        #     failures tend to have smaller values
+        #
+        # Large absolute values:
+        #     stronger pass/fail separation
+        # --------------------------------------------------------------
+
+        if (
+            pass_count > 1
+            and fail_count > 1
+            and not np.isnan(pass_std)
+            and not np.isnan(fail_std)
+        ):
+
+            pooled_variance = (
+                (
+                    (pass_count - 1) * pass_std**2
+                    + (fail_count - 1) * fail_std**2
+                )
+                /
+                (
+                    pass_count
+                    + fail_count
+                    - 2
+                )
+            )
+
+            pooled_std = np.sqrt(pooled_variance)
+
+            if pooled_std > 0:
+                standardized_mean_difference = (
+                    mean_difference / pooled_std
+                )
+            else:
+                standardized_mean_difference = 0.0
+
+        else:
+            standardized_mean_difference = np.nan
+
+        # --------------------------------------------------------------
+        # FAILURE EXTREME-RANGE ANALYSIS
+        #
+        # Instead of defining "extreme" using the entire dataset,
+        # define NORMAL boundaries using PASS observations.
+        #
+        # Example:
+        #
+        # PASS 5th percentile  = 100
+        # PASS 95th percentile = 150
+        #
+        # Then ask:
+        #
+        # "What percentage of FAIL observations fall below 100
+        #  or above 150?"
+        #
+        # With 5% / 95% boundaries, approximately 10% of PASS
+        # observations should naturally lie outside the range.
+        #
+        # If 30%, 40%, 50%, etc. of failures are outside,
+        # that feature becomes interesting.
+        # --------------------------------------------------------------
+
+        if pass_count > 0 and fail_count > 0:
+
+            pass_lower_limit = pass_values.quantile(
+                lower_quantile
+            )
+
+            pass_upper_limit = pass_values.quantile(
+                upper_quantile
+            )
+
+            fail_extreme_mask = (
+                (fail_values < pass_lower_limit)
+                | (fail_values > pass_upper_limit)
+            )
+
+            fail_extreme_count = fail_extreme_mask.sum()
+
+            fail_extreme_rate = (
+                fail_extreme_count / fail_count
+            )
+
+            # Separately calculate upper- and lower-tail behavior.
+            fail_low_extreme_rate = (
+                (fail_values < pass_lower_limit).mean()
+            )
+
+            fail_high_extreme_rate = (
+                (fail_values > pass_upper_limit).mean()
+            )
+
+        else:
+
+            pass_lower_limit = np.nan
+            pass_upper_limit = np.nan
+
+            fail_extreme_count = 0
+            fail_extreme_rate = np.nan
+
+            fail_low_extreme_rate = np.nan
+            fail_high_extreme_rate = np.nan
+
+        # --------------------------------------------------------------
+        # STORE RESULTS FOR THIS FEATURE
+        # --------------------------------------------------------------
+
+        rows.append({
+            "feature": col,
+
+            # Data availability
+            "n_observed": n_observed,
+            "n_missing": n_missing,
+            "missing_rate": missing_rate,
+            "n_unique": n_unique,
+
+            # Overall distribution
+            "mean": mean,
+            "median": median,
+            "std": std,
+            "variance": variance,
+            "min": minimum,
+            "max": maximum,
+            "skew": skew,
+
+            # Robust spread
+            "q1": q1,
+            "q3": q3,
+            "iqr": iqr,
+
+            # Outliers
+            "outlier_count": outlier_count,
+            "outlier_rate": outlier_rate,
+
+            # Pass information
+            "pass_count": pass_count,
+            "pass_mean": pass_mean,
+            "pass_median": pass_median,
+            "pass_std": pass_std,
+
+            # Failure information
+            "fail_count": fail_count,
+            "fail_mean": fail_mean,
+            "fail_median": fail_median,
+            "fail_std": fail_std,
+
+            # Pass/fail comparison
+            "mean_difference_fail_minus_pass":
+                mean_difference,
+
+            "median_difference_fail_minus_pass":
+                median_difference,
+
+            "standardized_mean_difference":
+                standardized_mean_difference,
+
+            "abs_standardized_mean_difference":
+                abs(standardized_mean_difference)
+                if not np.isnan(
+                    standardized_mean_difference
+                )
+                else np.nan,
+
+            # Extreme-range analysis
+            "pass_lower_5pct":
+                pass_lower_limit,
+
+            "pass_upper_95pct":
+                pass_upper_limit,
+
+            "fail_extreme_count":
+                fail_extreme_count,
+
+            "fail_extreme_rate":
+                fail_extreme_rate,
+
+            "fail_low_extreme_rate":
+                fail_low_extreme_rate,
+
+            "fail_high_extreme_rate":
+                fail_high_extreme_rate,
+        })
+
+    # Convert all feature dictionaries into a dataframe.
+    report = pd.DataFrame(rows)
+
+    return report
