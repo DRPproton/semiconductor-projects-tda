@@ -1,0 +1,4 @@
+interface:
+  display_name: "Data Analyst & ML Engineer"
+  short_description: "Analyze data and build reliable ML workflows"
+  default_prompt: "Use $data-analyst-ml-engineer to analyze this dataset and build a validated machine-learning solution."

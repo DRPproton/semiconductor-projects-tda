@@ -438,7 +438,7 @@ def evaluate_pipeline_cv(
     Designed for the SECOM semiconductor dataset where:
 
         -1 = pass
-         1 = fail
+        1 = fail
 
     The function evaluates:
         - balanced accuracy
