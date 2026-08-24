@@ -1,98 +1,136 @@
 # Phase 4: Target Imbalance and Manufacturing Risk
 
-**Goal:** Evaluate the rare-failure problem correctly.
+**Goal:** Evaluate the rare-failure problem using metrics that reflect manufacturing screening risk.
 
-**Tasks:**
+## Class Distribution
 
-- Calculate pass and fail percentages.
-    - Pass example count 1463 that is 93.36% of the total
-    - Fail example count 104 that is the 6.64% of the total
+The SECOM dataset contains 1,567 production observations:
 
-    > The SECOM dataset is highly imbalanced. Out of 1,567 production examples, 1,463 passed and only 104 failed. This means failures represent approximately 6.64% of the dataset. Because failure examples are rare, standard accuracy can be misleading, and the evaluation should focus on metrics that measure failure detection performance.
+| Class | Label | Count | Percentage |
+|---|---:|---:|---:|
+| Pass | -1 | 1,463 | 93.36% |
+| Fail | 1 | 104 | 6.64% |
 
-- ~~Create class-distribution chart.~~
+The class-distribution chart confirms a strong imbalance. Passing observations account for more than 93% of the dataset, while failures account for less than 7%. Therefore, ordinary accuracy can appear strong even when a model fails to identify the minority failure class.
 
-- Calculate majority-class baseline accuracy and explain why it is misleading.
+## Majority-Class Baseline
 
-    #### Manufacturing interpretation
-    In a fab or production environment, this is common. Most units should pass. But the minority failure class is often the most valuable class because it may represent:
+A majority-class classifier that predicts every observation as pass would produce the following results:
 
-    - yield loss,
-    - process drift,
-    - tool issues,
-    - abnormal process conditions,
-    - possible yield excursion signals,
-    - downstream cost.
-    - What you should write in your project
+| Metric | Baseline result |
+|---|---:|
+| Accuracy | 93.36% |
+| Failure recall | 0% |
+| Pass recall (specificity) | 100% |
+| Balanced accuracy | 50% |
+| Balanced Error Rate | 50% |
+| Failure F1-score | 0 |
 
-    ```The class-distribution chart shows a strong imbalance between pass and fail examples. Pass examples account for more than 93% of the dataset, while failures account for less than 7%. This imbalance means that a naive model can appear highly accurate while failing to identify actual yield failures.```
+Failure precision is undefined because this classifier never predicts the failure class; evaluation software may report it as zero when zero-division handling is enabled.
 
-- Define false negative and false positive from a manufacturing viewpoint.
+This baseline demonstrates why accuracy is misleading for SECOM. A model can classify more than 93% of observations correctly while detecting none of the actual failures. A useful model must improve failure detection and balanced performance—not merely exceed the baseline's accuracy.
 
-    > A false negative occurs when the model predicts that a production entity will pass, but the actual label is failure. From a manufacturing viewpoint, this is a missed yield-risk case. False negatives are especially important because they may represent failures that the model failed to detect early.
+## Manufacturing Interpretation of Prediction Errors
 
-- Choose recall, precision, F1, balanced accuracy, BER, confusion matrix, and PR curve.
+### False negative
 
-    > The SECOM dataset is highly imbalanced, with 1,463 pass examples and 104 failure examples. This corresponds to approximately 93.36% pass and 6.64% fail. A majority-class baseline that predicts every example as pass would achieve approximately 93.36% accuracy, but it would detect zero failures. This makes ordinary accuracy misleading. Because the goal is to identify yield-risk examples, the evaluation focuses on failure-class recall, precision, F1-score, balanced accuracy, Balanced Error Rate, confusion matrices, and precision-recall curves. These metrics provide a better view of how well the model detects rare failures while controlling false alarms.
+A false negative occurs when the model predicts pass for an observation whose actual label is fail. From a manufacturing viewpoint, this represents a missed yield-risk case. False negatives matter because a potentially abnormal observation is not flagged for investigation.
 
-    ### Confusion matrix
-    |             | Predicted fail | Predicted pass |
-    | ----------- | -------------: | -------------: |
-    | Actual fail |  True positive | False negative |
-    | Actual pass | False positive |  True negative |
+### False positive
 
+A false positive occurs when the model predicts fail for an observation whose actual label is pass. In a manufacturing screening workflow, false positives may create unnecessary inspection, additional metrology, engineering-review workload, production holds, or avoidable rework. Excessive false alarms may also reduce confidence in the screening system.
 
-    ### Recall
-    > Out of all actual failures, how many did the model catch?
+The two error types have different operational costs. Failure recall is important, but maximizing recall without considering false positives could create an impractical engineering workload.
 
-    - Recall = TP / (TP + FN) <br>
-    - Failure recall = correctly predicted failures / all actual failures
+## Evaluation Metrics
 
-    ### Precision
-    > Out of all examples predicted as failures, how many were actually failures?
+### Confusion matrix
 
-    - Precision = TP / (TP + FP)
+| | Predicted fail | Predicted pass |
+|---|---:|---:|
+| Actual fail | True positive | False negative |
+| Actual pass | False positive | True negative |
 
-    ### F1-score
-    > F1-score combines precision and recall.
+### Failure recall
 
-    - F1 = 2 × precision × recall / (precision + recall)
+Failure recall answers: **Of all actual failures, how many did the model identify?**
 
-    ### Balanced accuracy
-    > Balanced accuracy is useful when classes are imbalanced.
+- Recall = TP / (TP + FN)
+- False-negative rate = 1 - failure recall
 
-    - Balanced accuracy = (true positive rate + true negative rate) / 2
+### Failure precision
 
-    ### Balanced Error Rate (BER)
-    > Balanced Error Rate, or BER, is directly connected to the original SECOM benchmark
+Failure precision answers: **Of all observations flagged as failures, how many were actually failures?**
 
-    - BER = 1 - balanced accuracy
-    - **Lower BER is better.**
+- Precision = TP / (TP + FP)
 
-    ### Precision-recall curve
-    > The precision-recall curve shows how precision and recall change when you adjust the model threshold.
+Precision represents the usefulness of the model's alerts. Low precision means that engineering teams must investigate many passing observations to find a true failure.
 
-    #### 0.50 is not always the best threshold.
+### F1-score
 
-    For imbalanced manufacturing problems, you may lower the threshold to catch more failures.
+The F1-score is the harmonic mean of precision and recall:
 
-    ```Example:
+- F1 = 2 × precision × recall / (precision + recall)
 
-    Threshold = 0.50
-    Catches fewer failures
-    Creates fewer false alarms
+F1 is useful as a combined summary, but it does not express that false negatives and false positives may have different manufacturing costs. It should not be the only model-selection metric.
 
-    Threshold = 0.30
-    Catches more failures
-    Creates more false alarms
-    ```
+### Specificity and false-positive rate
 
-    - **Why PR curve is better than ROC curve here**
+Specificity, also called true-negative rate, measures the percentage of actual passing observations correctly classified as pass.
 
-        - ROC curves can sometimes look too optimistic on imbalanced datasets.
+- Specificity = TN / (TN + FP)
+- False-positive rate = 1 - specificity
 
-``**Expected output:** Class Imbalance section.``
+### Balanced accuracy
+
+Balanced accuracy gives equal importance to failure recall and pass recall:
+
+- Balanced accuracy = (failure recall + specificity) / 2
+
+This prevents the large passing class from dominating the evaluation.
+
+### Balanced Error Rate
+
+Balanced Error Rate (BER) is directly related to balanced accuracy and aligns with the original SECOM benchmark:
+
+- BER = 1 - balanced accuracy
+- BER = (false-negative rate + false-positive rate) / 2
+- **Lower BER is better.**
+
+### Precision-recall curve and average precision
+
+The precision-recall curve shows how failure precision and recall change as the classification threshold changes. It is especially informative for SECOM because failures are rare and the analysis is focused on the minority class.
+
+The no-skill precision baseline is the failure prevalence, approximately 6.64%. Average precision can summarize performance across thresholds and should be interpreted relative to this baseline.
+
+An ROC curve is not incorrect, but it can appear optimistic in a highly imbalanced dataset because the large number of passing observations can keep the false-positive rate numerically small. The precision-recall curve more directly shows the quality and coverage of failure alerts.
+
+## Threshold Decision
+
+A probability threshold of 0.50 is only a default and is not automatically the best operating threshold. Lowering the threshold will generally flag more observations, potentially increasing failure recall while also increasing false positives.
+
+The final threshold should be selected after model evaluation using:
+
+- the cost of missed failures,
+- the cost of false alarms,
+- available engineering-review capacity,
+- failure recall and false-negative rate,
+- alert precision and false-positive burden,
+- and the intended screening use case.
+
+Threshold selection will be performed using cross-validated or held-out predictions rather than the training data.
+
+## Phase 4 Decisions and Rationale
+
+- Failure (`1`) remains the positive class, and pass (`-1`) remains the negative class.
+- Ordinary accuracy will be reported only as supporting context, not as the main success metric.
+- The majority-class baseline establishes 50% balanced accuracy and 50% BER as the minimum balanced-performance reference.
+- Primary evaluation will include failure recall, failure precision, false-negative rate, F1-score, specificity, false-positive rate, balanced accuracy, BER, average precision, a confusion matrix, and a precision-recall curve.
+- Model selection will balance missed-failure risk against false-alarm workload rather than automatically favoring the model with the highest recall.
+- The final decision threshold will be justified using manufacturing risk and operational capacity rather than accepted at 0.50 by default.
+
+**Expected output:** Class Imbalance and Manufacturing Risk section.
 
 **Key question:** Can the analysis detect failures, or does it hide behind the majority class?
 
-``**Stop condition:** Accuracy is not used as the main success metric.``
+**Stop condition:** Accuracy is not used as the main success metric, and both failure detection and false-alarm burden are included in the evaluation plan.

@@ -57,3 +57,24 @@ At the time of this review, Phase 2 code cells 16-43 had `execution_count = null
 - Features `72`, `73`, `345`, and `346` have the largest absolute difference: missingness is 17.20 percentage points lower in failures than passes.
 - Features `112`, `247`, `385`, and `519` are 14.89 percentage points lower in failures than passes.
 - The repeated groups documented in `Phase_3_explantion.md` have identical row-level missingness masks, supporting the interpretation that they were collected as coordinated measurement blocks.
+
+## Project Phase 4: Target Imbalance and Manufacturing Risk
+
+- Cells 72-74: final Phase 3 high-missingness removal
+- Cell 75: Phase 4 heading
+- Cells 76-79: class counts, class-distribution chart, and summary table
+- Cell 80: Phase 5 heading
+
+### Saved Phase 4 results reviewed
+
+- Pass: 1,463 observations (93.36%)
+- Fail: 104 observations (6.64%)
+- A classifier predicting every observation as pass would have 93.36% accuracy, 0% failure recall, 50% balanced accuracy, and 50% balanced error rate.
+- The class-distribution chart and the written metric rationale agree with the saved counts.
+
+### Important notebook-state issue before Phase 5
+
+- Cell 72 selects features using pass-class missingness greater than 65%, although the documented decision is overall missingness greater than 80%. The two rules happen to identify the same eight features in this dataset, but they are not the same reproducible rule.
+- Cell 74 drops the eight features from the original `df` rather than from the Phase 2 reduced dataframe. This restores the 116 constant and six selected near-constant features that were previously removed.
+- Cell 81 confirms the restoration because its descriptive table again contains known constant features such as `5`, `13`, `42`, `49`, and `52`.
+- If uncorrected, Phase 5 will analyze 582 numerical features instead of the intended 460.

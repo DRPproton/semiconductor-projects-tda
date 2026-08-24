@@ -1081,3 +1081,71 @@ def build_feature_eda_report(
     report = pd.DataFrame(rows)
 
     return report
+
+
+def add_behavior_flags(
+    report: pd.DataFrame,
+    high_missing_threshold=0.50,
+    extreme_failure_threshold=0.25,
+    effect_size_threshold=0.30,
+    skew_threshold=2.0,
+    outlier_threshold=0.10,
+):
+    """
+    Add simple behavioral flags to the EDA report.
+
+    These are screening flags, not final feature-selection decisions.
+    """
+
+    result = report.copy()
+
+    # High missingness
+    result["flag_high_missing"] = (
+        result["missing_rate"]
+        >= high_missing_threshold
+    )
+
+    # Strong pass/fail distribution shift
+    result["flag_pass_fail_shift"] = (
+        result[
+            "abs_standardized_mean_difference"
+        ]
+        >= effect_size_threshold
+    )
+
+    # Failures frequently occur outside the normal PASS range
+    result["flag_failure_extreme"] = (
+        result["fail_extreme_rate"]
+        >= extreme_failure_threshold
+    )
+
+    # Strong asymmetry
+    result["flag_high_skew"] = (
+        result["skew"].abs()
+        >= skew_threshold
+    )
+
+    # Many IQR-defined extreme observations
+    result["flag_high_outlier_rate"] = (
+        result["outlier_rate"]
+        >= outlier_threshold
+    )
+
+    # ----------------------------------------------------------
+    # Candidate process signal
+    #
+    # A feature becomes interesting if either:
+    #
+    # 1. Pass and fail distributions differ materially
+    #
+    # OR
+    #
+    # 2. Failed examples frequently occupy extreme regions.
+    # ----------------------------------------------------------
+
+    result["candidate_process_signal"] = (
+        result["flag_pass_fail_shift"]
+        | result["flag_failure_extreme"]
+    )
+
+    return result
