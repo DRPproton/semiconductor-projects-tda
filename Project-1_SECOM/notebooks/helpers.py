@@ -4,7 +4,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
-from missing_features_helper import DropHighMissingFeatures
+from missing_features_helper import DropHighMissingFeatures, DropCorrelatedFeatures
 from sklearn.model_selection import cross_validate, RepeatedStratifiedKFold
 from sklearn.metrics import make_scorer, recall_score, precision_score, f1_score
 
@@ -333,10 +333,16 @@ def missingness_by_target_report(X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
     return report
 
 
-def create_pipeline(threshold=0.50, 
+def create_pipeline(threshold=0.50,
+                    use_correlation=True,
+                    correlation_threshold=0.90,
+                    correlation_method="spearman",
+                    min_periods=100,
                     imputer=SimpleImputer(strategy="median"),
                     scaler=StandardScaler(), 
                     classifier=LogisticRegression(class_weight="balanced", max_iter=5000,random_state=42),
+                    selector=None,
+                    reducer=None,
                     ):
     
     # -------------------------------------------------------------
@@ -347,16 +353,20 @@ def create_pipeline(threshold=0.50,
     #     Pass the original NaN values directly to the model.
     # -------------------------------------------------------------
     use_imputer = imputer if imputer is not None else "passthrough"
-
-    # -------------------------------------------------------------
-    # SCALER STEP
-    # -------------------------------------------------------------
-    # If scaler=None, skip scaling.
-    #
-    # This is useful for tree-based models such as
-    # HistGradientBoostingClassifier, RandomForest, etc.
-    # -------------------------------------------------------------
+    imputer_step = imputer if imputer is not None else "passthrough"
+    selector_step = selector if selector is not None else "passthrough"
+    reducer_step = reducer if reducer is not None else "passthrough"
     scaler_step = scaler if scaler is not None else "passthrough"
+    
+    # Correlation pruning
+    if use_correlation:
+        correlation_step = DropCorrelatedFeatures(
+            threshold=correlation_threshold,
+            method=correlation_method,
+            min_periods=min_periods,
+        )
+    else:
+        correlation_step = "passthrough"
 
     return Pipeline(
         steps=[
@@ -365,12 +375,24 @@ def create_pipeline(threshold=0.50,
                 DropHighMissingFeatures(threshold=threshold),
             ),
             (
+            "drop_correlated",
+                correlation_step
+            ),
+            (
                 "imputer",
                 use_imputer,
             ),
             (
+                "selector",
+                selector_step,
+            ),
+            (
                 "scaler",
                 scaler_step,
+            ),
+            (
+                "reducer",
+                reducer_step,
             ),
             (
                 "classifier",
