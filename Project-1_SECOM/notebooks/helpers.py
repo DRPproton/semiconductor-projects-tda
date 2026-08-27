@@ -352,7 +352,6 @@ def create_pipeline(threshold=0.50,
     # If use_imputer=False:
     #     Pass the original NaN values directly to the model.
     # -------------------------------------------------------------
-    use_imputer = imputer if imputer is not None else "passthrough"
     imputer_step = imputer if imputer is not None else "passthrough"
     selector_step = selector if selector is not None else "passthrough"
     reducer_step = reducer if reducer is not None else "passthrough"
@@ -380,7 +379,7 @@ def create_pipeline(threshold=0.50,
             ),
             (
                 "imputer",
-                use_imputer,
+                imputer_step,
             ),
             (
                 "selector",

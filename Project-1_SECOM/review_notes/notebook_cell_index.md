@@ -141,3 +141,50 @@ As of August 26, 2026, Phase 5 cells 81-110 are saved with sequential execution 
 - The PC1-PC2 plot shows strong pass/fail overlap in the dense central region. Some failures occur in extreme PCA regions, but passing examples also occupy those regions.
 - PCA supports substantial redundancy but not a very low-dimensional structure, and the first two components do not provide a clean failure boundary.
 - The saved pipeline currently uses `PCA()` and therefore does not yet reduce the matrix. A later `n_components=0.95` modeling branch would retain 164 training-derived components.
+
+## Project Phase 7: Baseline Modeling
+
+- Cell 147: Phase 7 heading
+- Cell 148: all-feature balanced Logistic Regression pipeline definition
+- Cell 149: pipeline fitted on `X_train` and `y_train`
+- Cell 150: preliminary `.score(X_test, y_test)` result
+
+### Saved baseline result reviewed
+
+- The pipeline uses the 0.80 missingness threshold, no correlation pruning, median imputation, no selector, standardization, no reducer, and balanced Logistic Regression.
+- Cell 150 now reports ordinary training accuracy of 0.97845.
+- Cells 151-152 evaluate the complete pipeline with 5-fold repeated stratified cross-validation, repeated five times, using training data only.
+- Mean balanced accuracy is 0.57874 (SD 0.05854), corresponding to mean BER of 0.42126.
+- Mean failure recall is 0.265 (SD 0.11674), so the mean false-negative rate is 0.735.
+- Mean failure precision is 0.14753 (SD 0.05912), failure F1 is 0.18847 (SD 0.07697), and average precision is 0.15386 (SD 0.05363).
+- Average precision is above the training failure prevalence of 0.0662, indicating some ranking signal, but the default classifier misses nearly three quarters of failures and is unstable across folds.
+- The large difference between fitted training accuracy and out-of-fold performance is consistent with substantial overfitting in the 460-feature Logistic Regression baseline.
+- Representation and model comparisons should continue using training-only cross-validation; the test set should not be consulted again until the final selected pipeline is evaluated.
+
+### Correlation-pruned RF-RFE top-40 diagnostic
+
+- Cells 154-160 define, fit, and cross-validate a correlation-pruned, RF-RFE top-40 pipeline with a 500-tree Random Forest classifier.
+- The full-training fit confirms correlation pruning from 460 to 261 features before RFE retains 40.
+- Fitted training accuracy is 0.97765, but cross-validated balanced accuracy is 0.49983 and failure recall is 0.0; mean FNR is 1.0.
+- Mean average precision is 0.18528, indicating ranking signal even though the default threshold detects no failures.
+- The final Random Forest lacks class weighting; the balanced class weights used inside the RFE estimator do not apply to the final classifier.
+- Because both the representation and classifier changed relative to the baseline, this is not a controlled test of correlation pruning/RFE. Repeat with the same balanced Logistic Regression classifier for the representation screen.
+- Cells 155-160 were rerun with a revised final Random Forest using balanced subsampling, maximum depth 8, minimum leaf size 4, and no scaler.
+- The revised model reaches 0.99920 fitted training accuracy but only 0.50423 mean balanced accuracy in cross-validation.
+- Mean failure recall is 0.01427, mean FNR is 0.98574, and mean average precision is 0.18272.
+- The revised class weighting does not solve default-threshold failure detection; the training/CV gap provides stronger evidence of overfitting.
+- The final Random Forest and outer cross-validation both use `n_jobs=-1`, creating potential nested parallelism. This affects efficiency rather than the reported predictive metrics.
+- Cells 161-165 add a second correlation-pruned Random Forest run without RFE.
+- This run also changes the missingness threshold from 0.80 to 0.50 and enables `SimpleImputer(add_indicator=True)`, so it does not isolate the effect of removing RFE.
+- Mean balanced accuracy is exactly 0.50, failure recall is 0.0, and FNR is 1.0; the classifier predicts no validation failures at the default threshold.
+- Mean average precision rises to 0.20856 (SD 0.06105), the strongest ranking result so far, but the responsible pipeline change cannot be identified from this multi-change experiment.
+- The second run correctly uses the revised Random Forest with `min_samples_split=10` and `n_jobs=1`.
+- Cell 162 was later changed to standard median imputation without missing indicators, and cell 163 refitted that pipeline in execution 140.
+- Cells 164-165 were not rerun after that change; their visible cross-validation output is stale from execution 138 and must not be attributed to the no-indicator pipeline.
+- Cells 162-165 were subsequently rerun in executions 143-146 with `imputer=None`, no RFE, a 50% missingness threshold, correlation pruning, and the balanced regularized Random Forest.
+- The no-imputation pipeline fits successfully, confirming native missing-value support in the installed Random Forest implementation.
+- Mean balanced accuracy remains 0.50, failure recall remains 0.0, FNR remains 1.0, and mean average precision is 0.19878 (SD 0.05241).
+- Cells 166-170 add an ANOVA `SelectKBest(f_classif, k=100)` pipeline using the balanced regularized Random Forest.
+- The selector is correctly placed inside the pipeline after median imputation and before the classifier; correlation pruning is disabled.
+- Mean balanced accuracy is 0.50684, failure recall is 0.01471, FNR is 0.98529, and average precision is 0.19106 (SD 0.06520).
+- The pipeline uses Random Forest rather than the balanced Logistic Regression required for the controlled representation screen, so it cannot isolate the value of the ANOVA top-100 representation relative to the baseline.
