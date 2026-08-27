@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 0: Wafer-Map and Process Context Setup</title>
+    <style>
+        :root {
+            --surface: #ffffff;
+            --background: #f8fafc;
+            --text-main: #333333;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --sidebar-bg: #f1f5f9;
+            --link-hover: #e2e8f0;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Georgia", serif; /* Serif font for the "paper" feel */
+            color: var(--text-main);
+            background-color: var(--background);
+            display: flex;
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+
+        /* Sidebar / Table of Contents */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            font-family: system-ui, -apple-system, sans-serif; /* Sans-serif for UI */
+        }
+
+        .sidebar h3 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: var(--text-main);
+            display: block;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+        }
+
+        .sidebar a:hover {
+            background-color: var(--link-hover);
+        }
+
+        .sidebar a.active {
+            font-weight: bold;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+        }
+
+        /* Main Report Content */
+        .content {
+            margin-left: 290px; /* Offset for sidebar */
+            padding: 3rem 4rem;
+            max-width: 850px;
+            background: var(--surface);
+            box-shadow: -4px 0 15px rgba(0,0,0,0.02);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3 {
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #0f172a;
+            margin-top: 2rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            margin-bottom: 2rem;
+            margin-top: 0;
+        }
+
+        /* Simulator Styles */
+        .simulator-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: flex-start;
+            background: var(--background);
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin: 2rem 0;
+        }
+
+        .controls {
+            flex: 1;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        select, input[type="range"] {
+            padding: 0.5rem;
+            font-size: 1rem;
+        }
+
+        canvas {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th { background-color: var(--background); }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <h3>Project Chapters</h3>
+        <ul>
+            <li><a href="#" class="active">Phase 0: Process Context</a></li>
+            <li><a href="#">Phase 1: Data Preprocessing</a></li>
+            <li><a href="#">Phase 2: CNN Architecture</a></li>
+            <li><a href="#">Phase 3: Model Evaluation</a></li>
+            <li><a href="#">Conclusion</a></li>
+        </ul>
+    </nav>
+
+    <main class="content">
+        <header>
+            <h1>Phase 0: Wafer-Map and Process Context Setup</h1>
+            <p><strong>Goal:</strong> Understand the semiconductor meaning of wafer maps before treating them as standard images.</p>
+        </header>
+
+        <h2>The Diagnostic Value of Wafer Maps</h2>
+        <p>A wafer map directly answers a fundamental manufacturing question: <em>Is a specific equipment malfunction or process drift causing our semiconductor yields to drop?</em></p>
+        <p>By mapping the spatial coordinates of failed chips, engineers trace failures back to the physical footprint of the machines that processed them. Because every tool interacts with the wafer geometrically, the spatial pattern isolates the root cause from thousands of potential variables.</p>
+
+        <h2>Interactive Defect Pattern Simulator</h2>
+        <p>The interactive model below demonstrates how systematic tool failures manifest as spatial patterns on the wafer. This visualizes why spatial relationships matter in manufacturing diagnostics.</p>
+        
+        <div class="simulator-container">
+            <div class="controls">
+                <div class="control-group">
+                    <label for="patternSelect"><strong>Defect Pattern Class:</strong></label>
+                    <select id="patternSelect">
+                        <option value="None">None (Normal Baseline)</option>
+                        <option value="Center">Center (e.g., Thermal unevenness)</option>
+                        <option value="Donut">Donut (e.g., Uneven gas flow)</option>
+                        <option value="Edge-Ring">Edge-Ring (e.g., Incomplete etching)</option>
+                        <option value="Scratch">Scratch (e.g., Robotic handler damage)</option>
+                        <option value="Random">Random (e.g., Baseline yield loss)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="intensitySlider"><strong>Pattern Intensity (Noise):</strong></label>
+                    <input type="range" id="intensitySlider" min="0.1" max="1" step="0.1" value="0.5">
+                </div>
+                <p style="font-size: 0.9rem; color: #64748b;">
+                    <em>Grey = Pass Die, Red = Fail Die</em>
+                </p>
+            </div>
+            <div>
+                <canvas id="waferCanvas" width="300" height="300"></canvas>
+            </div>
+        </div>
+
+        <h2>Why This Isn't Generic Image Classification</h2>
+        <ul>
+            <li><strong>Spatial Reality:</strong> Pixels are not abstract light values; they represent exact physical coordinates of discrete physical objects (dies).</li>
+            <li><strong>Noise Context:</strong> In standard images, noise is an artifact. In wafer maps, random noise (isolated failed dies) is normal baseline yield loss. We are looking specifically for <em>structured</em> noise (systematic patterns).</li>
+            <li><strong>Sparsity and Imbalance:</strong> Most dies pass, and extreme defect patterns are rare anomalies. A model must differentiate between a perfectly good wafer with random normal defects and one with a subtle systematic issue.</li>
+        </ul>
+
+        <h2>WM-811K Label Vocabulary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Label</th>
+                    <th>Spatial Signature Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Center</strong></td><td>High concentration of failed dies in the middle of the wafer.</td></tr>
+                <tr><td><strong>Donut</strong></td><td>A concentric ring of failures between the center and the edge.</td></tr>
+                <tr><td><strong>Edge-Loc</strong></td><td>A localized cluster of failures specifically touching the edge.</td></tr>
+                <tr><td><strong>Edge-Ring</strong></td><td>Continuous or semi-continuous ring of failures around the perimeter.</td></tr>
+                <tr><td><strong>Loc (Local)</strong></td><td>An isolated cluster of failures anywhere away from the edge.</td></tr>
+                <tr><td><strong>Random</strong></td><td>Failed dies scattered evenly with no geometric shape.</td></tr>
+                <tr><td><strong>Scratch</strong></td><td>A thin, straight, or curved line of continuous failures.</td></tr>
+                <tr><td><strong>Near-full</strong></td><td>Almost all dies on the wafer have failed.</td></tr>
+                <tr><td><strong>None</strong></td><td>No clear pattern; normal expected distribution of good and bad dies.</td></tr>
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('waferCanvas');
+        const ctx = canvas.getContext('2d');
+        const patternSelect = document.getElementById('patternSelect');
+        const intensitySlider = document.getElementById('intensitySlider');
+
+        const GRID_SIZE = 40;
+        const CELL_SIZE = canvas.width / GRID_SIZE;
+        const CENTER = GRID_SIZE / 2;
+        const RADIUS = 18;
+
+        const COLOR_PASS = '#cbd5e1';
+        const COLOR_FAIL = '#ef4444';
+
+        function drawWafer() {
+            const pattern = patternSelect.value;
+            const intensity = parseFloat(intensitySlider.value);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let x = 0; x < GRID_SIZE; x++) {
+                for (let y = 0; y < GRID_SIZE; y++) {
+                    const dx = x - CENTER;
+                    const dy = y - CENTER;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance <= RADIUS) {
+                        let isFail = false;
+                        const rand = Math.random();
+
+                        if (Math.random() < 0.05) isFail = true;
+
+                        if (pattern === 'Center' && distance < 6 && rand < (intensity * 0.8)) {
+                            isFail = true;
+                        } 
+                        else if (pattern === 'Donut' && distance > 8 && distance < 13 && rand < (intensity * 0.8)) {
+                            isFail = true;
+                        }
+                        else if (pattern === 'Edge-Ring' && distance > 15 && distance <= RADIUS && rand < (intensity * 0.9)) {
+                            isFail = true;
+                        }
+                        else if (pattern === 'Scratch' && Math.abs(x - y) < 2 && rand < (intensity * 0.9)) {
+                            isFail = true;
+                        }
+                        else if (pattern === 'Random' && rand < (intensity * 0.5)) {
+                            isFail = true;
+                        }
+
+                        ctx.fillStyle = isFail ? COLOR_FAIL : COLOR_PASS;
+                        ctx.fillRect((x * CELL_SIZE) + 1, (y * CELL_SIZE) + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+                    }
+                }
+            }
+        }
+
+        patternSelect.addEventListener('change', drawWafer);
+        intensitySlider.addEventListener('input', drawWafer);
+        drawWafer();
+    </script>
+</body>
+</html>
