@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phase 0: Wafer-Map and Process Context Setup</title>
+    <title>Wafer Map Pattern Analytics & TDA | Executive Summary</title>
     <style>
         :root {
             --surface: #ffffff;
@@ -13,11 +13,12 @@
             --border: #e2e8f0;
             --sidebar-bg: #f1f5f9;
             --link-hover: #e2e8f0;
+            --primary: #2563eb;
         }
 
         body {
             margin: 0;
-            font-family: "Georgia", serif; /* Serif font for the "paper" feel */
+            font-family: "Georgia", serif;
             color: var(--text-main);
             background-color: var(--background);
             display: flex;
@@ -34,7 +35,7 @@
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            font-family: system-ui, -apple-system, sans-serif; /* Sans-serif for UI */
+            font-family: system-ui, -apple-system, sans-serif;
         }
 
         .sidebar h3 {
@@ -73,11 +74,12 @@
             font-weight: bold;
             background-color: var(--surface);
             border: 1px solid var(--border);
+            color: var(--primary);
         }
 
         /* Main Report Content */
         .content {
-            margin-left: 290px; /* Offset for sidebar */
+            margin-left: 290px;
             padding: 3rem 4rem;
             max-width: 850px;
             background: var(--surface);
@@ -85,58 +87,30 @@
             min-height: 100vh;
         }
 
+        header {
+            margin-bottom: 3rem;
+        }
+
+        .author-tag {
+            font-family: system-ui, -apple-system, sans-serif;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-top: -1rem;
+            margin-bottom: 2rem;
+            display: block;
+        }
+
         h1, h2, h3 {
             font-family: system-ui, -apple-system, sans-serif;
             color: #0f172a;
-            margin-top: 2rem;
+            margin-top: 2.5rem;
         }
 
         h1 {
             font-size: 2.2rem;
             border-bottom: 2px solid var(--border);
             padding-bottom: 0.5rem;
-            margin-bottom: 2rem;
             margin-top: 0;
-        }
-
-        /* Simulator Styles */
-        .simulator-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
-            align-items: flex-start;
-            background: var(--background);
-            padding: 1.5rem;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            margin: 2rem 0;
-        }
-
-        .controls {
-            flex: 1;
-            min-width: 250px;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            font-family: system-ui, -apple-system, sans-serif;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        select, input[type="range"] {
-            padding: 0.5rem;
-            font-size: 1rem;
-        }
-
-        canvas {
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 50%;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
         /* Table Styles */
@@ -144,158 +118,154 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
             font-family: system-ui, -apple-system, sans-serif;
             font-size: 0.95rem;
         }
 
         th, td {
-            padding: 12px;
+            padding: 14px 12px;
             text-align: left;
             border-bottom: 1px solid var(--border);
+            vertical-align: top;
         }
 
-        th { background-color: var(--background); }
+        th { 
+            background-color: var(--background); 
+            font-weight: 600;
+        }
+
+        .highlight-box {
+            background: var(--background);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 4px 4px 0;
+        }
     </style>
 </head>
 <body>
 
+    <!-- Left Navigation Bar -->
     <nav class="sidebar">
-        <h3>Project Chapters</h3>
+        <h3>Project Portfolio</h3>
         <ul>
-            <li><a href="#" class="active">Phase 0: Process Context</a></li>
+            <li><a href="index.html" class="active">Executive Summary</a></li>
+            <li><a href="phase0.html">Phase 0: Process Context</a></li>
             <li><a href="#">Phase 1: Data Preprocessing</a></li>
-            <li><a href="#">Phase 2: CNN Architecture</a></li>
-            <li><a href="#">Phase 3: Model Evaluation</a></li>
-            <li><a href="#">Conclusion</a></li>
+            <li><a href="#">Phase 2: Feature Engineering</a></li>
+            <li><a href="#">Phase 3: TDA & Topology</a></li>
+            <li><a href="#">Phase 4: Machine Learning</a></li>
+            <li><a href="#">Phase 5: Results & Interpretation</a></li>
         </ul>
     </nav>
 
+    <!-- Main Report Text -->
     <main class="content">
         <header>
-            <h1>Phase 0: Wafer-Map and Process Context Setup</h1>
-            <p><strong>Goal:</strong> Understand the semiconductor meaning of wafer maps before treating them as standard images.</p>
+            <h1>WM-811K Wafer Map Pattern Analytics</h1>
+            <span class="author-tag">Project Portfolio by <strong>Dashel Ruiz Perez</strong></span>
+            <p><em>Topological Data Analysis (TDA) and Machine Learning through a Yield and Process Engineering Lens.</em></p>
         </header>
 
-        <h2>The Diagnostic Value of Wafer Maps</h2>
-        <p>A wafer map directly answers a fundamental manufacturing question: <em>Is a specific equipment malfunction or process drift causing our semiconductor yields to drop?</em></p>
-        <p>By mapping the spatial coordinates of failed chips, engineers trace failures back to the physical footprint of the machines that processed them. Because every tool interacts with the wafer geometrically, the spatial pattern isolates the root cause from thousands of potential variables.</p>
-
-        <h2>Interactive Defect Pattern Simulator</h2>
-        <p>The interactive model below demonstrates how systematic tool failures manifest as spatial patterns on the wafer. This visualizes why spatial relationships matter in manufacturing diagnostics.</p>
-        
-        <div class="simulator-container">
-            <div class="controls">
-                <div class="control-group">
-                    <label for="patternSelect"><strong>Defect Pattern Class:</strong></label>
-                    <select id="patternSelect">
-                        <option value="None">None (Normal Baseline)</option>
-                        <option value="Center">Center (e.g., Thermal unevenness)</option>
-                        <option value="Donut">Donut (e.g., Uneven gas flow)</option>
-                        <option value="Edge-Ring">Edge-Ring (e.g., Incomplete etching)</option>
-                        <option value="Scratch">Scratch (e.g., Robotic handler damage)</option>
-                        <option value="Random">Random (e.g., Baseline yield loss)</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label for="intensitySlider"><strong>Pattern Intensity (Noise):</strong></label>
-                    <input type="range" id="intensitySlider" min="0.1" max="1" step="0.1" value="0.5">
-                </div>
-                <p style="font-size: 0.9rem; color: #64748b;">
-                    <em>Grey = Pass Die, Red = Fail Die</em>
-                </p>
-            </div>
-            <div>
-                <canvas id="waferCanvas" width="300" height="300"></canvas>
-            </div>
+        <div class="highlight-box">
+            <strong>Project Objective:</strong> 
+            Analyze wafer-level spatial defect patterns (WM-811K dataset), extract interpretable geometry/topology features, and deploy explainable machine learning models to connect spatial signatures to actionable process-engineering hypotheses.
         </div>
 
-        <h2>Why This Isn't Generic Image Classification</h2>
-        <ul>
-            <li><strong>Spatial Reality:</strong> Pixels are not abstract light values; they represent exact physical coordinates of discrete physical objects (dies).</li>
-            <li><strong>Noise Context:</strong> In standard images, noise is an artifact. In wafer maps, random noise (isolated failed dies) is normal baseline yield loss. We are looking specifically for <em>structured</em> noise (systematic patterns).</li>
-            <li><strong>Sparsity and Imbalance:</strong> Most dies pass, and extreme defect patterns are rare anomalies. A model must differentiate between a perfectly good wafer with random normal defects and one with a subtle systematic issue.</li>
-        </ul>
+        <h2>Executive Summary</h2>
+        <p>This project serves as a spatial counterpart to standard high-dimensional tabular sensor data analysis. While traditional sensor models identify <em>which</em> signals fail, wafer map analytics answer <em>where</em> failures occur physically. A wafer map is a spatial record of die-level test behavior; non-random defect clustering strongly suggests systematic manufacturing issues such as thermal unevenness, gas-flow anomalies, or mechanical handling damage.</p>
+        
+        <p>Instead of treating wafer map classification as a generic convolutional neural network (CNN) image-recognition task, this project treats the maps as manufacturing artifacts. It utilizes <strong>Topological Data Analysis (TDA)</strong> to extract interpretable shape descriptors, paired with <strong>Machine Learning (ML)</strong> to automate diagnostic decisions and discover unknown failure modes.</p>
 
-        <h2>WM-811K Label Vocabulary</h2>
+        <h2>Strategic Alignment: Project 1 vs. Project 2</h2>
+        <p>This study acts as a companion to the SECOM process-signal investigation, rounding out a comprehensive approach to semiconductor yield analytics.</p>
+
         <table>
             <thead>
                 <tr>
-                    <th>Label</th>
-                    <th>Spatial Signature Description</th>
+                    <th>Dimension</th>
+                    <th>Project 1: SECOM</th>
+                    <th>Project 2: WM-811K (This Project)</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td><strong>Center</strong></td><td>High concentration of failed dies in the middle of the wafer.</td></tr>
-                <tr><td><strong>Donut</strong></td><td>A concentric ring of failures between the center and the edge.</td></tr>
-                <tr><td><strong>Edge-Loc</strong></td><td>A localized cluster of failures specifically touching the edge.</td></tr>
-                <tr><td><strong>Edge-Ring</strong></td><td>Continuous or semi-continuous ring of failures around the perimeter.</td></tr>
-                <tr><td><strong>Loc (Local)</strong></td><td>An isolated cluster of failures anywhere away from the edge.</td></tr>
-                <tr><td><strong>Random</strong></td><td>Failed dies scattered evenly with no geometric shape.</td></tr>
-                <tr><td><strong>Scratch</strong></td><td>A thin, straight, or curved line of continuous failures.</td></tr>
-                <tr><td><strong>Near-full</strong></td><td>Almost all dies on the wafer have failed.</td></tr>
-                <tr><td><strong>None</strong></td><td>No clear pattern; normal expected distribution of good and bad dies.</td></tr>
+                <tr>
+                    <td><strong>Data Type</strong></td>
+                    <td>High-dimensional tabular process/sensor data.</td>
+                    <td>Spatial wafer maps with die-level pass/fail patterns.</td>
+                </tr>
+                <tr>
+                    <td><strong>Core Question</strong></td>
+                    <td>Which sensor signals are associated with yield failure?</td>
+                    <td>What spatial defect patterns appear, and what tool signatures do they suggest?</td>
+                </tr>
+                <tr>
+                    <td><strong>Methodology</strong></td>
+                    <td>Mapper for process-regime discovery in feature space.</td>
+                    <td>TDA shape features paired with tree-based and unsupervised ML.</td>
+                </tr>
+                <tr>
+                    <td><strong>Engineering Value</strong></td>
+                    <td>Process-signal investigation and feature selection.</td>
+                    <td>Automated wafer-space defect interpretation and early warning detection.</td>
+                </tr>
             </tbody>
         </table>
+
+        <h2>Topological Data Analysis (TDA) Approach</h2>
+        <p>To accurately capture the geometry of wafer failures, this project translates TDA mathematical concepts into practical manufacturing metrics:</p>
+
+        <ul>
+            <li><strong>Point Clouds:</strong> Representing failed dies as precise coordinate mappings on the wafer substrate.</li>
+            <li><strong>H0 (Connected Components):</strong> Differentiating between random scattered background noise (normal yield loss) and compact, localized defect clusters.</li>
+            <li><strong>H1 (Loops):</strong> Mathematically identifying ring or donut-like spatial structures that indicate rotational or flow-based chamber issues.</li>
+            <li><strong>Persistence:</strong> Measuring how stable a shape feature is across distance scales to separate real tool signatures from random test noise.</li>
+        </ul>
+
+        <h2>Machine Learning Integration</h2>
+        <p>TDA serves as advanced feature engineering, while the ML layer acts as the decision engine. Because process-engineering transparency is paramount, the ML strategy prioritizes models that offer clear feature importance and anomaly detection over black-box predictions.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ML Strategy</th>
+                    <th>Algorithms Used</th>
+                    <th>The Yield Engineering Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Interpretable Classification</strong></td>
+                    <td>Random Forest, XGBoost</td>
+                    <td><strong>Feature Importance:</strong> Models ingest TDA summaries to explicitly reveal which topological shapes (e.g., H1 loops) define a specific tool failure.</td>
+                </tr>
+                <tr>
+                    <td><strong>Unsupervised Discovery</strong></td>
+                    <td>UMAP, DBSCAN</td>
+                    <td><strong>Unknown Pattern Detection:</strong> Automatically groups similar wafers to discover emerging failure modes before a human yield engineer manually labels them.</td>
+                </tr>
+                <tr>
+                    <td><strong>Anomaly Detection</strong></td>
+                    <td>Isolation Forest</td>
+                    <td><strong>Automated Alerts:</strong> Trained purely on "normal" baseline wafers to flag topological deviations, acting as an early warning system for catastrophic tool drift.</td>
+                </tr>
+                <tr>
+                    <td><strong>The Black-Box Baseline</strong></td>
+                    <td>CNN (ResNet architecture)</td>
+                    <td><strong>The Benchmark:</strong> Establishes a raw image-processing baseline to prove that the TDA + Interpretable ML pipeline achieves high accuracy without sacrificing explainability.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Deliverables & Outcomes</h2>
+        <p>This project culminates in a defect-pattern atlas, a spatial feature table, and a <strong>Process Interpretation Matrix</strong>. By combining spatial density metrics with topological persistence and interpretable ML, the resulting pipeline provides yield engineers with explainable, geometry-based insights to accelerate root-cause investigations.</p>
+        
+        <p style="font-size: 0.85rem; color: #64748b; margin-top: 3rem;">
+            <em>Note: This project relies exclusively on the public WM-811K dataset. No proprietary, confidential, or production manufacturing data is included in this analysis.</em>
+        </p>
+
     </main>
 
-    <script>
-        const canvas = document.getElementById('waferCanvas');
-        const ctx = canvas.getContext('2d');
-        const patternSelect = document.getElementById('patternSelect');
-        const intensitySlider = document.getElementById('intensitySlider');
-
-        const GRID_SIZE = 40;
-        const CELL_SIZE = canvas.width / GRID_SIZE;
-        const CENTER = GRID_SIZE / 2;
-        const RADIUS = 18;
-
-        const COLOR_PASS = '#cbd5e1';
-        const COLOR_FAIL = '#ef4444';
-
-        function drawWafer() {
-            const pattern = patternSelect.value;
-            const intensity = parseFloat(intensitySlider.value);
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            for (let x = 0; x < GRID_SIZE; x++) {
-                for (let y = 0; y < GRID_SIZE; y++) {
-                    const dx = x - CENTER;
-                    const dy = y - CENTER;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance <= RADIUS) {
-                        let isFail = false;
-                        const rand = Math.random();
-
-                        if (Math.random() < 0.05) isFail = true;
-
-                        if (pattern === 'Center' && distance < 6 && rand < (intensity * 0.8)) {
-                            isFail = true;
-                        } 
-                        else if (pattern === 'Donut' && distance > 8 && distance < 13 && rand < (intensity * 0.8)) {
-                            isFail = true;
-                        }
-                        else if (pattern === 'Edge-Ring' && distance > 15 && distance <= RADIUS && rand < (intensity * 0.9)) {
-                            isFail = true;
-                        }
-                        else if (pattern === 'Scratch' && Math.abs(x - y) < 2 && rand < (intensity * 0.9)) {
-                            isFail = true;
-                        }
-                        else if (pattern === 'Random' && rand < (intensity * 0.5)) {
-                            isFail = true;
-                        }
-
-                        ctx.fillStyle = isFail ? COLOR_FAIL : COLOR_PASS;
-                        ctx.fillRect((x * CELL_SIZE) + 1, (y * CELL_SIZE) + 1, CELL_SIZE - 2, CELL_SIZE - 2);
-                    }
-                }
-            }
-        }
-
-        patternSelect.addEventListener('change', drawWafer);
-        intensitySlider.addEventListener('input', drawWafer);
-        drawWafer();
-    </script>
 </body>
 </html>
