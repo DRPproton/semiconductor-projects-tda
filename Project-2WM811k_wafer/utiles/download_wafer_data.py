@@ -4,7 +4,7 @@ from kaggle.api.kaggle_api_extended import KaggleApi
 
 
 DATASET = "qingyi/wm811k-wafer-map"
-OUTPUT_DIR = Path("semiconductor-projects-tda/Project-2WM811k_wafer/raw_data/wm811k")
+OUTPUT_DIR = Path("../raw_data/wm811k")
 
 
 def main() -> None:
