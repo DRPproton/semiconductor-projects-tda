@@ -188,3 +188,11 @@ As of August 26, 2026, Phase 5 cells 81-110 are saved with sequential execution 
 - The selector is correctly placed inside the pipeline after median imputation and before the classifier; correlation pruning is disabled.
 - Mean balanced accuracy is 0.50684, failure recall is 0.01471, FNR is 0.98529, and average precision is 0.19106 (SD 0.06520).
 - The pipeline uses Random Forest rather than the balanced Logistic Regression required for the controlled representation screen, so it cannot isolate the value of the ANOVA top-100 representation relative to the baseline.
+- Cells 171-182 contain the completed Optuna search and repeated-validation confirmation.
+- All Optuna cells ran sequentially in executions 127-133, with no saved error or stale result in this section.
+- The 50-trial study optimizes five-fold mean average precision over ANOVA feature counts of 40, 70, and 100 and three balanced classifiers. All preprocessing and feature selection remain inside the cross-validation pipeline.
+- Trial 32 wins with fixed-split average precision 0.23085: ANOVA top 100 and a 500-tree balanced-subsample Random Forest with maximum depth 10, minimum split size 12, minimum leaf size 8, and `max_features="log2"`.
+- All displayed top-ten trials use Random Forest and 100 features. Five trials tie at 0.23085; several are exact duplicates, while split sizes 6, 8, and 12 are effectively non-binding when both child leaves require at least eight observations.
+- The 5x5 repeated-CV confirmation reports balanced accuracy 0.50841 (SD 0.02117), BER 0.49159, failure recall 0.01956 (SD 0.04142), FNR 0.98044, failure precision 0.18667 (SD 0.37807), failure F1 0.03488 (SD 0.07316), and average precision 0.20004 (SD 0.06268).
+- The repeated-CV average precision is the more cautious estimate and is not clearly better than prior Random Forest ranking results once their variability is considered. The fixed-split Optuna best value is selection-biased.
+- The search supports retaining 100 features for prediction among the tested sizes, while any 40-, 30-, or 20-feature result should be described as an interpretability-constrained shortlist and checked for selection stability.

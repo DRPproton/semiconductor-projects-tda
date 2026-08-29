@@ -234,6 +234,50 @@ Average precision of 19.11% is above the 6.62% failure prevalence, but it does n
 
 Reject this configuration as a default-threshold classifier. Retain the ANOVA selector for the planned controlled Logistic Regression comparison, using the same pipeline structure with the baseline classifier.
 
+## Model 7: Optuna-Tuned ANOVA and Classifier Search
+
+### Search design
+
+Optuna completed 50 trials using a fixed, shuffled five-fold stratified cross-validation split and mean average precision as the objective. Each trial learned the 80% missingness filter, median imputation, and ANOVA feature selection entirely within its training folds. The search compared 40, 70, and 100 selected features across balanced Logistic Regression, balanced Random Forest, and balanced HistGradientBoosting. The test set was not used.
+
+The best tuning result was a mean average precision of 0.23085. Its configuration was:
+
+- ANOVA `SelectKBest(f_classif, k=100)`.
+- Random Forest with 500 trees, maximum depth 10, minimum split size 12, minimum leaf size 8, logarithmic feature sampling, balanced subsampling, and bootstrap sampling.
+
+All ten highest-ranked trials used Random Forest and 100 features. Five trials tied at 0.23085. These ties are not independent confirmations: with a minimum leaf size of 8, the tested minimum split sizes of 6, 8, and 12 are below the effective sample requirement for producing two valid leaves and therefore do not change the fitted trees. Duplicate trials also used identical parameters.
+
+### Repeated cross-validation confirmation
+
+The winning pipeline was then evaluated with five-fold repeated stratified cross-validation, repeated five times.
+
+| Metric | Mean | Standard deviation | Interpretation |
+|---|---:|---:|---|
+| Balanced accuracy | 0.5084 | 0.0212 | Only slightly above the chance reference. |
+| Balanced error rate | 0.4916 | 0.0212 | Default-threshold balanced error remains near chance. |
+| Failure recall | 0.0196 | 0.0414 | Approximately 2.0% of validation failures are detected. |
+| False-negative rate | 0.9804 | — | Approximately 98.0% of validation failures are missed. |
+| Failure precision | 0.1867 | 0.3781 | Positive predictions are extremely rare and unstable. |
+| Failure F1 | 0.0349 | 0.0732 | Default-threshold failure classification remains ineffective. |
+| Average precision | 0.2000 | 0.0627 | Ranking signal is about three times the 6.62% failure prevalence, but remains unstable. |
+
+### Interpretation
+
+The repeated-validation average precision of 0.2000 is substantially lower than Optuna's best fixed-split value of 0.23085. This is expected after selecting the best of 50 trials against one cross-validation partition: the winning objective is optimistically biased toward that partition. Repeated validation provides the more cautious estimate, although it is still not a fully unbiased nested-cross-validation estimate because the same training dataset informed hyperparameter selection.
+
+The confirmed ranking result is not clearly better than the earlier no-RFE Random Forest results of 0.2086 and 0.1988; all differences are small relative to their fold-to-fold standard deviations. It is, however, above the all-feature Logistic Regression baseline of 0.1539. The model therefore contains useful failure-ranking information, but it still predicts almost every observation as passing at the default 0.50 threshold.
+
+The search consistently favors 100 ANOVA-selected features rather than 40 or 70 among its strongest trials. This suggests that aggressively reducing this dataset to 40 features sacrifices useful distributed signal under the tested approach. It does not prove that these exact 100 variables are stable across resamples, nor does it establish a final top-40, top-30, or top-20 set.
+
+### Decision
+
+- Retain this pipeline as the leading tuned ranking candidate, not as a deployable default-threshold classifier.
+- Use the repeated-CV result, not 0.23085, as the realistic performance estimate.
+- Do not evaluate additional alternatives on the test set.
+- Before selecting the final process variables, measure how frequently each ANOVA feature is selected across resamples; a single full-training top-100 list may be unstable.
+- If a predictive failure-screening model remains in scope, select an operating threshold from out-of-fold training predictions and report the recall/false-positive tradeoff. Threshold tuning will not change average precision, but it can convert the ranking signal into actionable alerts.
+- Treat 100 features as the strongest tested size. Any final 40-, 30-, or 20-feature deliverable should be presented as an interpretability-constrained shortlist rather than the empirically best predictive representation.
+
 ## Future Model Entries
 
 For each new pipeline, add:
