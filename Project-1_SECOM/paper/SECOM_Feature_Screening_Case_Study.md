@@ -6,7 +6,7 @@
 **ML Data Engineer/Analyst**<br>
 **Link in page:** [https://www.linkedin.com/in/dashel-ruiz-perez/](https://www.linkedin.com/in/dashel-ruiz-perez/)<br>
 **Project repository:** [github.com/DRPproton/semiconductor-projects-tda/tree/main/Project-1_SECOM](https://github.com/DRPproton/semiconductor-projects-tda/tree/main/Project-1_SECOM)<br>  
-**Project website:**[Add deployed project URL]<br>
+**Project website:** [https://drpproton.github.io/semiconductor-projects-tda/Project-1_SECOM/website/](https://drpproton.github.io/semiconductor-projects-tda/Project-1_SECOM/website/)<br>
 **Prepared:** August 2026
 
 > **Editing note:** This study uses only the public UCI SECOM dataset and contains no confidential manufacturing data.
