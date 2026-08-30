@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="A semiconductor manufacturing analytics case study that reduces 590 anonymous SECOM process measurements to a stable engineering investigation shortlist."
+    />
+    <meta name="theme-color" content="#0b1d2a" />
+    <meta property="og:title" content="SECOM Semiconductor Feature Screening" />
+    <meta
+      property="og:description"
+      content="From 590 anonymous process measurements to five reproducible investigation priorities."
+    />
+    <meta property="og:type" content="article" />
+    <title>SECOM Semiconductor Feature Screening</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <script>document.documentElement.classList.add("js");</script>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Skip to the analysis</a>
+    <div class="reading-progress" aria-hidden="true"><span></span></div>
+
+    <header class="site-header">
+      <a class="wordmark" href="#top" aria-label="SECOM case study home">
+        <span class="wordmark__mark" aria-hidden="true"></span>
+        <span>SECOM / Feature Screening</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="#findings">Findings</a>
+        <a href="#method">Method</a>
+        <a href="#limitations">Limitations</a>
+        <a
+          class="site-nav__repo"
+          href="https://github.com/DRPproton/semiconductor-projects-tda/tree/main/Project-1_SECOM"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Repository <span aria-hidden="true">↗</span>
+        </a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="hero__inner">
+          <div class="hero__copy">
+            <p class="eyebrow">Applied machine learning · Semiconductor manufacturing</p>
+            <h1 id="hero-title">From 590 process signals to five investigation priorities.</h1>
+            <p class="hero__summary">
+              A reproducible feature-screening study of rare manufacturing failures in the public
+              SECOM dataset—designed to support engineering investigation, not overstate root cause.
+            </p>
+            <div class="hero__actions">
+              <a class="button button--light" href="#findings">Read the findings</a>
+              <a
+                class="text-link text-link--light"
+                href="https://github.com/DRPproton/semiconductor-projects-tda/tree/main/Project-1_SECOM"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Explore the analysis <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+        <dl class="hero__facts" aria-label="Dataset facts">
+          <div><dt>Observations</dt><dd>1,567</dd></div>
+          <div><dt>Failures</dt><dd>104 <span>· 6.6%</span></dd></div>
+          <div><dt>Validation</dt><dd>25 resamples</dd></div>
+          <div><dt>Final output</dt><dd>Tiered shortlist</dd></div>
+        </dl>
+      </section>
+
+      <section class="paper-intro section reveal" aria-labelledby="abstract-title">
+        <div class="section-label">Abstract</div>
+        <div class="paper-intro__body">
+          <h2 id="abstract-title">The objective was not another accuracy score.</h2>
+          <p class="lede">
+            Semiconductor datasets are wide, noisy, incomplete, and operationally dependent. This
+            study asks a more useful question: which anonymous measurements remain important when
+            the training sample changes, and which deserve attention from an engineer who has the
+            missing process context?
+          </p>
+          <p>
+            The analysis combined data-quality screening, exploratory statistics, several feature
+            selection methods, imbalanced classification metrics, and repeated cross-validation.
+            The result is a defensible investigation hierarchy—not a causal diagnosis and not a
+            production-ready failure detector.
+          </p>
+        </div>
+      </section>
+
+      <section class="section findings" id="findings" aria-labelledby="findings-title">
+        <div class="section-heading reveal">
+          <p class="eyebrow eyebrow--ink">Evidence 01 · Feature stability</p>
+          <h2 id="findings-title">Three signals survived every top-20 selection.</h2>
+          <p>
+            ANOVA feature selection was relearned inside each of 25 repeated validation resamples.
+            Frequency measures reproducibility under sampling—not causality.
+          </p>
+        </div>
+
+        <figure class="evidence-figure reveal">
+          <img
+            src="assets/feature-stability.png"
+            alt="Heatmap showing selection frequency for 20 anonymous features across top 100, 70, 40, 30, and 20 thresholds. Features 103, 59, and 510 are selected 100 percent of the time at every threshold."
+            loading="lazy"
+            width="700"
+            height="600"
+          />
+          <figcaption>
+            <span>Figure 1.</span> Selection frequency across five-fold stratified validation repeated
+            five times. Overlapping folds make these stability indicators, not independent
+            probabilities.
+          </figcaption>
+        </figure>
+
+        <div class="shortlist reveal" aria-labelledby="shortlist-title">
+          <div class="shortlist__intro">
+            <p class="section-label">Investigation shortlist</p>
+            <h3 id="shortlist-title">Start with the evidence that repeats.</h3>
+            <p>
+              The five core variables balance strong univariate separation with reproducible
+              top-20 selection. Their anonymous IDs are useful only after they are mapped to real
+              sensors, units, tools, and process stages.
+            </p>
+          </div>
+          <ol class="feature-list">
+            <li><span class="feature-list__rank">01</span><strong>103</strong><span>100% top-20 stability · RF rank 1</span></li>
+            <li><span class="feature-list__rank">02</span><strong>59</strong><span>100% top-20 stability · RF rank 2</span></li>
+            <li><span class="feature-list__rank">03</span><strong>510</strong><span>100% top-20 stability · RF rank 8</span></li>
+            <li><span class="feature-list__rank">04</span><strong>129</strong><span>92% top-20 stability</span></li>
+            <li><span class="feature-list__rank">05</span><strong>348</strong><span>80% top-20 stability</span></li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section model-evidence" aria-labelledby="model-title">
+        <div class="section-heading reveal">
+          <p class="eyebrow eyebrow--ink">Evidence 02 · Predictive representation</p>
+          <h2 id="model-title">Useful ranking signal, insufficient failure detection.</h2>
+          <p>
+            The 100-feature Random Forest provided the strongest tested Random Forest ranking. At
+            the default threshold, however, it detected only about 2% of failures.
+          </p>
+        </div>
+
+        <figure class="evidence-figure evidence-figure--wide reveal">
+          <img
+            src="assets/model-comparison.png"
+            alt="Line chart of repeated cross-validation average precision for Random Forest models retaining 20, 30, 40, 70, and 100 ANOVA-selected features. The 100-feature model has the highest numerical average precision at 0.20, with substantial overlap in uncertainty."
+            loading="lazy"
+            width="700"
+            height="500"
+          />
+          <figcaption>
+            <span>Figure 2.</span> Mean average precision plus or minus one standard deviation. The
+            all-feature Logistic Regression is a reference, not a controlled feature-count
+            comparison.
+          </figcaption>
+        </figure>
+
+        <dl class="metric-line reveal" aria-label="Leading model metrics">
+          <div><dt>Average precision</dt><dd>0.200 <span>± 0.063</span></dd></div>
+          <div><dt>Failure prevalence</dt><dd>0.066</dd></div>
+          <div><dt>Failure recall</dt><dd>0.020</dd></div>
+          <div><dt>False-negative rate</dt><dd>0.980</dd></div>
+        </dl>
+
+        <aside class="interpretation reveal">
+          <p class="section-label">Interpretation</p>
+          <p>
+            The probabilities contain information—the model ranks failures above the random
+            prevalence baseline—but the standard 0.50 threshold converts that ranking into an
+            unusable alert system. Feature relevance and production classification are different
+            claims.
+          </p>
+        </aside>
+      </section>
+
+      <section class="method section" id="method" aria-labelledby="method-title">
+        <div class="section-heading reveal">
+          <p class="eyebrow eyebrow--ink">Method</p>
+          <h2 id="method-title">A leakage-aware path from raw signals to stable candidates.</h2>
+        </div>
+
+        <ol class="method-flow reveal">
+          <li><span>01</span><h3>Audit</h3><p>Profile class balance, missingness, constants, rare states, skew, and redundancy.</p></li>
+          <li><span>02</span><h3>Reduce</h3><p>Remove 116 constant, six near-constant, and eight greater-than-80%-missing variables.</p></li>
+          <li><span>03</span><h3>Compare</h3><p>Evaluate ANOVA, mutual information, Random Forest importance, RFE, correlation pruning, and PCA.</p></li>
+          <li><span>04</span><h3>Validate</h3><p>Learn imputation and selection inside stratified folds and prioritize rare-failure metrics.</p></li>
+          <li><span>05</span><h3>Stabilize</h3><p>Repeat selection across 25 resamples and rank candidates by reproducibility.</p></li>
+        </ol>
+
+        <div class="method-note reveal">
+          <p>
+            PCA required <strong>164 components</strong> to retain 95% of the training variance, and
+            its first two components explained only 9.34%. The data has redundancy, but no simple
+            low-dimensional failure boundary.
+          </p>
+        </div>
+      </section>
+
+      <section class="limitations section" id="limitations" aria-labelledby="limitations-title">
+        <div class="limitations__lead reveal">
+          <p class="eyebrow">Boundaries of the evidence</p>
+          <h2 id="limitations-title">Statistical importance is an invitation to investigate—not proof of root cause.</h2>
+        </div>
+        <div class="limitations__body reveal">
+          <ul>
+            <li><strong>Anonymous measurements.</strong> No sensor names, units, process stages, tools, chambers, recipes, or control limits are available.</li>
+            <li><strong>Rare failures.</strong> Only 104 failures exist in the full dataset, so failure estimates remain uncertain.</li>
+            <li><strong>Observational evidence.</strong> Association does not establish that changing a variable would improve yield.</li>
+            <li><strong>No final operating threshold.</strong> A confusion matrix would be arbitrary until an alert threshold and cost tradeoff are defined.</li>
+            <li><strong>Independent validation remains necessary.</strong> The cleanest confirmation would use a later manufacturing period or a separate cohort.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="handoff section" aria-labelledby="handoff-title">
+        <div class="section-label">Engineering handoff</div>
+        <div class="handoff__body reveal">
+          <h2 id="handoff-title">What should happen when process context becomes available?</h2>
+          <ol>
+            <li>Map features 103, 59, 510, 129, and 348 to physical measurements and process steps.</li>
+            <li>Compare their behavior by tool, chamber, recipe, product, lot, wafer position, and time.</li>
+            <li>Determine whether correlated signals are duplicate sensors, linked stages, or responses to a shared process condition.</li>
+            <li>Freeze the analysis and validate it on temporally later production data.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="repository-cta" aria-labelledby="repo-title">
+        <div>
+          <p class="eyebrow">Open analysis</p>
+          <h2 id="repo-title">Inspect every decision, notebook, and result.</h2>
+          <p>
+            The repository contains the full analysis notebook, phase-by-phase reasoning, model
+            evaluation log, final report, and reproducible figure generation.
+          </p>
+        </div>
+        <div class="repository-cta__links">
+          <a
+            class="button button--light"
+            href="https://github.com/DRPproton/semiconductor-projects-tda/tree/main/Project-1_SECOM"
+            target="_blank"
+            rel="noreferrer"
+          >View project repository <span aria-hidden="true">↗</span></a>
+          <a
+            class="text-link text-link--light"
+            href="https://github.com/DRPproton/semiconductor-projects-tda/blob/main/Project-1_SECOM/documents/Final_Report.md"
+            target="_blank"
+            rel="noreferrer"
+          >Read the complete technical report</a>
+          <a
+            class="text-link text-link--light"
+            href="https://github.com/DRPproton/semiconductor-projects-tda/blob/main/Project-1_SECOM/notebooks/notebook.ipynb"
+            target="_blank"
+            rel="noreferrer"
+          >Open the analysis notebook</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>SECOM Semiconductor Feature Screening · Applied machine-learning case study</p>
+      <p>Public data · Reproducible analysis · Engineering-first interpretation</p>
+    </footer>
+  </body>
+</html>
