@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="An engineering-first portfolio of semiconductor manufacturing analytics projects using public data and reproducible methods."
+    />
+    <meta name="theme-color" content="#f7f4ee" />
+    <meta property="og:title" content="Semiconductor Analytics Portfolio" />
+    <meta
+      property="og:description"
+      content="Applied data science for semiconductor process, yield, and defect-pattern investigation."
+    />
+    <meta property="og:type" content="website" />
+    <title>Semiconductor Analytics Portfolio</title>
+    <link rel="icon" href="Project-1_SECOM/website/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="portfolio.css" />
+    <script>document.documentElement.classList.add("js");</script>
+    <script src="portfolio.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to the portfolio</a>
+
+    <header class="site-header">
+      <a class="wordmark" href="#top" aria-label="Semiconductor Analytics Portfolio home">
+        <span class="wordmark__mark" aria-hidden="true"></span>
+        <span>Semiconductor Analytics</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="#projects">Projects</a>
+        <a href="#approach">Approach</a>
+        <a
+          class="site-nav__repo"
+          href="https://github.com/DRPproton/semiconductor-projects-tda"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Repository <span aria-hidden="true">↗</span></a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="hero__inner">
+          <div class="hero__copy">
+            <p class="eyebrow">Applied data science · Semiconductor manufacturing</p>
+            <h1 id="hero-title">Engineering-first analysis for complex manufacturing data.</h1>
+            <p class="hero__summary">
+              A four-project portfolio using public datasets, reproducible machine learning, and
+              careful interpretation to turn process data into questions engineers can act on.
+            </p>
+            <div class="hero__actions">
+              <a class="button" href="Project-1_SECOM/website/">Read the completed study</a>
+              <a class="text-link" href="#projects">View the portfolio <span aria-hidden="true">↓</span></a>
+            </div>
+          </div>
+
+          <figure class="hero__figure">
+            <div class="hero__figure-frame">
+              <img
+                src="Project-1_SECOM/website/assets/model-comparison.png"
+                alt="Repeated cross-validation average precision for Random Forest models using 20 to 100 selected SECOM features, with the 100-feature representation producing the highest numerical result."
+                width="700"
+                height="500"
+              />
+            </div>
+            <figcaption>
+              Current study · Rare-failure ranking by retained feature count
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="portfolio section" id="projects" aria-labelledby="projects-title">
+        <div class="section-heading reveal">
+          <p class="section-label">Research portfolio · 01 / 04 complete</p>
+          <h2 id="projects-title">Four studies. One manufacturing perspective.</h2>
+          <p>
+            Each project begins with a process or yield question, documents the analytical
+            decisions, and ends with evidence, limitations, and a practical engineering handoff.
+          </p>
+        </div>
+
+        <article class="featured-project reveal" aria-labelledby="secom-title">
+          <div class="project-index" aria-hidden="true">01</div>
+          <div class="featured-project__body">
+            <div class="project-meta">
+              <span class="status status--complete">Completed</span>
+              <span>Tabular process data · Feature screening · Imbalanced ML</span>
+            </div>
+            <h3 id="secom-title">SECOM Semiconductor Feature Screening</h3>
+            <p class="project-lede">
+              From 590 anonymous process measurements to five reproducible investigation
+              priorities—without presenting association as root cause.
+            </p>
+
+            <dl class="project-evidence" aria-label="SECOM project evidence">
+              <div><dt>Observations</dt><dd>1,567</dd></div>
+              <div><dt>Recorded failures</dt><dd>104</dd></div>
+              <div><dt>Validation resamples</dt><dd>25</dd></div>
+              <div><dt>Core variables</dt><dd>5</dd></div>
+            </dl>
+
+            <div class="project-links">
+              <a class="project-link" href="Project-1_SECOM/website/">
+                Open case study <span aria-hidden="true">↗</span>
+              </a>
+              <a
+                href="https://github.com/DRPproton/semiconductor-projects-tda/blob/main/Project-1_SECOM/paper/SECOM_Feature_Screening_Case_Study.md"
+                target="_blank"
+                rel="noopener noreferrer"
+              >Read paper</a>
+              <a
+                href="https://github.com/DRPproton/semiconductor-projects-tda/tree/main/Project-1_SECOM"
+                target="_blank"
+                rel="noopener noreferrer"
+              >Inspect repository</a>
+            </div>
+          </div>
+        </article>
+
+        <div class="project-roadmap" aria-label="Portfolio roadmap">
+          <article class="roadmap-entry reveal" aria-labelledby="wm811k-title">
+            <div class="project-index" aria-hidden="true">02</div>
+            <div>
+              <div class="project-meta">
+                <span class="status status--progress">In development</span>
+                <span>Spatial data · Defect patterns · Topological analysis</span>
+              </div>
+              <h3 id="wm811k-title">Wafer Map Pattern Analytics with WM-811K</h3>
+              <p>
+                An investigation of die-level spatial signatures and interpretable topology
+                features through a process and yield engineering lens.
+              </p>
+            </div>
+          </article>
+
+          <article class="roadmap-entry roadmap-entry--planned reveal" aria-labelledby="project-three-title">
+            <div class="project-index" aria-hidden="true">03</div>
+            <div>
+              <div class="project-meta"><span class="status">Planned</span></div>
+              <h3 id="project-three-title">Forthcoming semiconductor study</h3>
+              <p>Scope and public data source will be published when the study begins.</p>
+            </div>
+          </article>
+
+          <article class="roadmap-entry roadmap-entry--planned reveal" aria-labelledby="project-four-title">
+            <div class="project-index" aria-hidden="true">04</div>
+            <div>
+              <div class="project-meta"><span class="status">Planned</span></div>
+              <h3 id="project-four-title">Forthcoming semiconductor study</h3>
+              <p>Scope and public data source will be published when the study begins.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="approach section" id="approach" aria-labelledby="approach-title">
+        <div class="section-heading reveal">
+          <p class="section-label">Working principles</p>
+          <h2 id="approach-title">The analysis should survive scrutiny.</h2>
+        </div>
+
+        <ol class="principles">
+          <li class="reveal">
+            <span>01</span>
+            <h3>Start with the engineering question.</h3>
+            <p>Methods are chosen for the decision they support, not for novelty alone.</p>
+          </li>
+          <li class="reveal">
+            <span>02</span>
+            <h3>Build validation into the workflow.</h3>
+            <p>Preprocessing and feature selection are learned inside validation folds.</p>
+          </li>
+          <li class="reveal">
+            <span>03</span>
+            <h3>Separate evidence from mechanism.</h3>
+            <p>Statistical association generates process questions; it does not prove root cause.</p>
+          </li>
+          <li class="reveal">
+            <span>04</span>
+            <h3>Make the work reproducible.</h3>
+            <p>Notebooks, decisions, model evaluations, figures, and reports remain open for review.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="closing" aria-labelledby="closing-title">
+        <div class="closing__inner reveal">
+          <p class="eyebrow">Open technical work</p>
+          <h2 id="closing-title">Read the conclusion. Then inspect how it was reached.</h2>
+          <p>
+            The repository contains the analysis notebooks, phase documentation, evaluation logs,
+            figures, and written reports behind every published result.
+          </p>
+          <a
+            class="button button--light"
+            href="https://github.com/DRPproton/semiconductor-projects-tda"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Explore the repository <span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Semiconductor Analytics Portfolio</p>
+      <p>Public data · Reproducible analysis · Engineering-first interpretation</p>
+    </footer>
+  </body>
+</html>
