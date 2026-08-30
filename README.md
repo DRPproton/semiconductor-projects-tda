@@ -123,21 +123,6 @@ python -m http.server 8000
 
 Then open [http://127.0.0.1:8000/](http://127.0.0.1:8000/). Serving from the repository root is important because the portfolio homepage uses relative links to each project website.
 
-## Deploying with GitHub Pages
-
-This repository contains a static HTML, CSS, and JavaScript site and does not require a build step.
-
-1. Commit and push the homepage, project website, paper, and README to the `main` branch.
-2. Open the repository on GitHub.
-3. Select **Settings**.
-4. In the sidebar, select **Pages**.
-5. Under **Build and deployment**, set **Source** to **Deploy from a branch**.
-6. Select the `main` branch and the `/(root)` folder.
-7. Select **Save**.
-8. After the Pages workflow finishes, open:
-   - Portfolio: `https://drpproton.github.io/semiconductor-projects-tda/`
-   - SECOM case study: `https://drpproton.github.io/semiconductor-projects-tda/Project-1_SECOM/website/`
-
 Future pushes to the selected publishing branch automatically update the website. Deployment status and errors can be inspected from the repository’s **Actions** tab.
 
 See GitHub’s official guide: [Configuring a publishing source for your GitHub Pages site](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
