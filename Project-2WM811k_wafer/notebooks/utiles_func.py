@@ -64,3 +64,54 @@ def plot_example_maps(example_maps, wafer_maps):
 
     # plt.tight_layout()
     plt.show()
+    
+def audit_wafer_map(wm):
+    """
+    Audits an individual wafer map array for shape, emptiness, and unexpected pixel values.
+    Expected values:
+        0: Background
+        1: Good die (Pass)
+        2: Failed die (Defect)
+    """
+    if not isinstance(wm, np.ndarray) or wm.ndim != 2:
+        return {
+            'is_corrupt_shape': True,
+            'is_empty_shape': True,
+            'total_pixels': 0,
+            'die_count': 0,
+            'fail_count': 0,
+            'unexpected_values': True,
+            'unique_values': ()
+        }
+    
+    h, w = wm.shape
+    if h == 0 or w == 0:
+        return {
+            'is_corrupt_shape': False,
+            'is_empty_shape': True,
+            'total_pixels': 0,
+            'die_count': 0,
+            'fail_count': 0,
+            'unexpected_values': False,
+            'unique_values': ()
+        }
+
+    # Extract unique values present in this map
+    uniques = np.unique(wm)
+    # Check if there are any values outside {0, 1, 2}
+    unexpected = not set(uniques).issubset({0, 1, 2})
+    
+    # Die counts (dies on wafer = good (1) + fail (2))
+    good_count = int(np.sum(wm == 1))
+    fail_count = int(np.sum(wm == 2))
+    die_count = good_count + fail_count
+
+    return {
+        'is_corrupt_shape': False,
+        'is_empty_shape': False,
+        'total_pixels': int(h * w),
+        'die_count': die_count,
+        'fail_count': fail_count,
+        'unexpected_values': unexpected,
+        'unique_values': tuple(uniques)
+    }
